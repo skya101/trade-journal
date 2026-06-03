@@ -123,6 +123,9 @@ body{background:var(--bg3);color:var(--text);font-size:14px;height:100vh;overflo
 .cl-s{padding:8px 8px 12px;}
 .dash-tab{border:none;background:none;padding:5px 12px;font-size:12px;font-weight:600;color:var(--text2);cursor:pointer;border-radius:6px;transition:all .13s;}
 .dash-tab.active{background:var(--bg);color:var(--accent);box-shadow:0 1px 3px rgba(0,0,0,.08);}
+.lang-btn{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:8px 10px;font-size:12px;cursor:pointer;color:var(--text);font-family:inherit;text-align:center;transition:all .13s;}
+.lang-btn:hover{background:var(--bg3);border-color:var(--border2);}
+.lang-btn.active{background:var(--accent);color:#fff;border-color:var(--accent);font-weight:600;}
 .dash-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;}
 @media(max-width:900px){.dash-grid{grid-template-columns:repeat(2,1fr);}}
 
@@ -475,8 +478,10 @@ textarea.fi{resize:vertical;min-height:70px;}
 <!-- HEADER -->
 <div class="hdr">
   <button class="mobile-menu-btn" onclick="toggleMobileSidebar()">☰</button>
-  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2.5"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
-  <div class="hdr-title">Trade Journal</div><div class="hdr-dot"></div>
+  <div onclick="goHome()" style="display:flex;align-items:center;gap:8px;cursor:pointer;" title="Zum Dashboard">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2.5"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+    <div class="hdr-title">Trade Journal</div><div class="hdr-dot"></div>
+  </div>
   <div class="hdr-r">
     <span id="hdr-date" style="font-size:12px;color:var(--text2);"></span>
     <span class="sync-dot" id="sync-dot" title="Synced"></span>
@@ -1415,8 +1420,8 @@ let auth = null, db = null, currentUser = null;
 // Sobald jemand einen Code benutzt, wird er in Firebase als "claimed" markiert
 const ACCESS_CODES = {
   'SKYA-OWNER-2026': 'Du selbst (Master Code, unlimited)',
-  'Bro123': 'Furkan #1',
-  'BRO-123': 'Conner #2',
+  'BRO-001': 'Freund #1',
+  'BRO-002': 'Freund #2',
   'BRO-003': 'Freund #3',
   'BRO-004': 'Freund #4',
   'BRO-005': 'Freund #5',
@@ -1756,6 +1761,277 @@ if(!S.setups.length){
 // ══════════ NAVIGATION ══════════
 const pageMap={home:'page-home',start:'page-start',news:'page-news',utilities:'page-utilities',journal:'page-journal',reviews:'page-reviews',knowledge:'page-knowledge',notebook:'page-notebook',resources:'page-resources',goals:'page-goals',tasks:'page-tasks',books:'page-books'};
 
+// ══════════ I18N / TRANSLATIONS ══════════
+const TRANSLATIONS = {
+  de: {
+    // Navigation
+    nav_home: 'Home', nav_start: 'Start-Here', nav_news: 'News', nav_utilities: 'Utilities',
+    nav_journal: 'Journal', nav_reviews: 'Reviews', nav_knowledge: 'Knowledge',
+    nav_notebook: 'Notebook', nav_resources: 'Resources', nav_goals: 'Goals',
+    nav_tasks: 'Tasks', nav_books: 'Books',
+    // Header
+    new_trade: '+ New Trade', login: 'Anmelden', logout: 'Abmelden',
+    // Home
+    home: 'Home', good_morning: 'Guten Morgen — bereit zu traden?',
+    dashboard: 'Dashboard', today: 'Heute', week: 'Woche', month: 'Monat', total: 'Gesamt',
+    win_rate: 'Win Rate', pnl: 'P&L', trades: 'Trades', profit_factor: 'Profit Factor',
+    closed: 'geschlossen', win_loss: 'Gewinn / Verlust',
+    // Settings
+    settings: 'Einstellungen', appearance: 'Erscheinungsbild', dark_mode: 'Dark Mode',
+    language: 'Sprache', accent_color: 'Akzentfarbe', trading_rules: 'Trading Regeln',
+    data: 'Daten', export_csv: 'Export CSV', import_csv: 'Import CSV',
+    delete_all: 'Alle löschen', save: 'Speichern', cancel: 'Abbrechen',
+    // Forms
+    pair: 'Pair', date: 'Datum', direction: 'Richtung', account: 'Account',
+    entry: 'Entry', stop_loss: 'Stop Loss', exit: 'Exit', risk: 'Risk',
+    setup: 'Setup', session: 'Session', notes: 'Notizen',
+    // Misc
+    new: '+ New', loading: 'Lädt...', no_trades: 'Noch keine Trades',
+    add_task: 'Aufgabe hinzufügen'
+  },
+  en: {
+    nav_home: 'Home', nav_start: 'Start-Here', nav_news: 'News', nav_utilities: 'Utilities',
+    nav_journal: 'Journal', nav_reviews: 'Reviews', nav_knowledge: 'Knowledge',
+    nav_notebook: 'Notebook', nav_resources: 'Resources', nav_goals: 'Goals',
+    nav_tasks: 'Tasks', nav_books: 'Books',
+    new_trade: '+ New Trade', login: 'Sign In', logout: 'Sign Out',
+    home: 'Home', good_morning: 'Good morning — ready to trade?',
+    dashboard: 'Dashboard', today: 'Today', week: 'Week', month: 'Month', total: 'Total',
+    win_rate: 'Win Rate', pnl: 'P&L', trades: 'Trades', profit_factor: 'Profit Factor',
+    closed: 'closed', win_loss: 'Wins / Losses',
+    settings: 'Settings', appearance: 'Appearance', dark_mode: 'Dark Mode',
+    language: 'Language', accent_color: 'Accent Color', trading_rules: 'Trading Rules',
+    data: 'Data', export_csv: 'Export CSV', import_csv: 'Import CSV',
+    delete_all: 'Delete All', save: 'Save', cancel: 'Cancel',
+    pair: 'Pair', date: 'Date', direction: 'Direction', account: 'Account',
+    entry: 'Entry', stop_loss: 'Stop Loss', exit: 'Exit', risk: 'Risk',
+    setup: 'Setup', session: 'Session', notes: 'Notes',
+    new: '+ New', loading: 'Loading...', no_trades: 'No trades yet',
+    add_task: 'Add a task'
+  },
+  es: {
+    nav_home: 'Inicio', nav_start: 'Comenzar', nav_news: 'Noticias', nav_utilities: 'Utilidades',
+    nav_journal: 'Diario', nav_reviews: 'Reseñas', nav_knowledge: 'Conocimiento',
+    nav_notebook: 'Cuaderno', nav_resources: 'Recursos', nav_goals: 'Metas',
+    nav_tasks: 'Tareas', nav_books: 'Libros',
+    new_trade: '+ Nuevo Trade', login: 'Iniciar sesión', logout: 'Cerrar sesión',
+    home: 'Inicio', good_morning: 'Buenos días — ¿listo para tradear?',
+    dashboard: 'Panel', today: 'Hoy', week: 'Semana', month: 'Mes', total: 'Total',
+    win_rate: 'Tasa de Éxito', pnl: 'P&L', trades: 'Trades', profit_factor: 'Factor Beneficio',
+    closed: 'cerrados', win_loss: 'Ganancia / Pérdida',
+    settings: 'Configuración', appearance: 'Apariencia', dark_mode: 'Modo Oscuro',
+    language: 'Idioma', accent_color: 'Color de Acento', trading_rules: 'Reglas de Trading',
+    data: 'Datos', export_csv: 'Exportar CSV', import_csv: 'Importar CSV',
+    delete_all: 'Borrar Todo', save: 'Guardar', cancel: 'Cancelar',
+    pair: 'Par', date: 'Fecha', direction: 'Dirección', account: 'Cuenta',
+    entry: 'Entrada', stop_loss: 'Stop Loss', exit: 'Salida', risk: 'Riesgo',
+    setup: 'Setup', session: 'Sesión', notes: 'Notas',
+    new: '+ Nuevo', loading: 'Cargando...', no_trades: 'Aún no hay trades',
+    add_task: 'Añadir tarea'
+  },
+  fr: {
+    nav_home: 'Accueil', nav_start: 'Commencer', nav_news: 'Actualités', nav_utilities: 'Utilitaires',
+    nav_journal: 'Journal', nav_reviews: 'Revues', nav_knowledge: 'Connaissance',
+    nav_notebook: 'Carnet', nav_resources: 'Ressources', nav_goals: 'Objectifs',
+    nav_tasks: 'Tâches', nav_books: 'Livres',
+    new_trade: '+ Nouveau Trade', login: 'Connexion', logout: 'Déconnexion',
+    home: 'Accueil', good_morning: 'Bonjour — prêt à trader ?',
+    dashboard: 'Tableau de bord', today: 'Aujourd\'hui', week: 'Semaine', month: 'Mois', total: 'Total',
+    win_rate: 'Taux de Réussite', pnl: 'P&L', trades: 'Trades', profit_factor: 'Facteur de Profit',
+    closed: 'clôturés', win_loss: 'Gains / Pertes',
+    settings: 'Paramètres', appearance: 'Apparence', dark_mode: 'Mode Sombre',
+    language: 'Langue', accent_color: 'Couleur Accent', trading_rules: 'Règles de Trading',
+    data: 'Données', export_csv: 'Exporter CSV', import_csv: 'Importer CSV',
+    delete_all: 'Tout Supprimer', save: 'Enregistrer', cancel: 'Annuler',
+    pair: 'Paire', date: 'Date', direction: 'Direction', account: 'Compte',
+    entry: 'Entrée', stop_loss: 'Stop Loss', exit: 'Sortie', risk: 'Risque',
+    setup: 'Setup', session: 'Session', notes: 'Notes',
+    new: '+ Nouveau', loading: 'Chargement...', no_trades: 'Pas encore de trades',
+    add_task: 'Ajouter une tâche'
+  },
+  it: {
+    nav_home: 'Home', nav_start: 'Inizia', nav_news: 'Notizie', nav_utilities: 'Utilità',
+    nav_journal: 'Diario', nav_reviews: 'Recensioni', nav_knowledge: 'Conoscenza',
+    nav_notebook: 'Quaderno', nav_resources: 'Risorse', nav_goals: 'Obiettivi',
+    nav_tasks: 'Compiti', nav_books: 'Libri',
+    new_trade: '+ Nuovo Trade', login: 'Accedi', logout: 'Esci',
+    home: 'Home', good_morning: 'Buongiorno — pronto a tradare?',
+    dashboard: 'Dashboard', today: 'Oggi', week: 'Settimana', month: 'Mese', total: 'Totale',
+    win_rate: 'Tasso di Vittoria', pnl: 'P&L', trades: 'Trade', profit_factor: 'Profit Factor',
+    closed: 'chiusi', win_loss: 'Vinte / Perse',
+    settings: 'Impostazioni', appearance: 'Aspetto', dark_mode: 'Modalità Scura',
+    language: 'Lingua', accent_color: 'Colore Accento', trading_rules: 'Regole di Trading',
+    data: 'Dati', export_csv: 'Esporta CSV', import_csv: 'Importa CSV',
+    delete_all: 'Elimina Tutto', save: 'Salva', cancel: 'Annulla',
+    pair: 'Coppia', date: 'Data', direction: 'Direzione', account: 'Account',
+    entry: 'Entrata', stop_loss: 'Stop Loss', exit: 'Uscita', risk: 'Rischio',
+    setup: 'Setup', session: 'Sessione', notes: 'Note',
+    new: '+ Nuovo', loading: 'Caricamento...', no_trades: 'Nessun trade ancora',
+    add_task: 'Aggiungi attività'
+  },
+  pt: {
+    nav_home: 'Início', nav_start: 'Começar', nav_news: 'Notícias', nav_utilities: 'Utilitários',
+    nav_journal: 'Diário', nav_reviews: 'Avaliações', nav_knowledge: 'Conhecimento',
+    nav_notebook: 'Caderno', nav_resources: 'Recursos', nav_goals: 'Metas',
+    nav_tasks: 'Tarefas', nav_books: 'Livros',
+    new_trade: '+ Novo Trade', login: 'Entrar', logout: 'Sair',
+    home: 'Início', good_morning: 'Bom dia — pronto para tradear?',
+    dashboard: 'Painel', today: 'Hoje', week: 'Semana', month: 'Mês', total: 'Total',
+    win_rate: 'Taxa de Vitória', pnl: 'P&L', trades: 'Trades', profit_factor: 'Fator de Lucro',
+    closed: 'fechados', win_loss: 'Vitórias / Perdas',
+    settings: 'Configurações', appearance: 'Aparência', dark_mode: 'Modo Escuro',
+    language: 'Idioma', accent_color: 'Cor de Destaque', trading_rules: 'Regras de Trading',
+    data: 'Dados', export_csv: 'Exportar CSV', import_csv: 'Importar CSV',
+    delete_all: 'Excluir Tudo', save: 'Salvar', cancel: 'Cancelar',
+    pair: 'Par', date: 'Data', direction: 'Direção', account: 'Conta',
+    entry: 'Entrada', stop_loss: 'Stop Loss', exit: 'Saída', risk: 'Risco',
+    setup: 'Setup', session: 'Sessão', notes: 'Notas',
+    new: '+ Novo', loading: 'Carregando...', no_trades: 'Ainda sem trades',
+    add_task: 'Adicionar tarefa'
+  },
+  tr: {
+    nav_home: 'Ana Sayfa', nav_start: 'Başla', nav_news: 'Haberler', nav_utilities: 'Araçlar',
+    nav_journal: 'Günlük', nav_reviews: 'İncelemeler', nav_knowledge: 'Bilgi',
+    nav_notebook: 'Defter', nav_resources: 'Kaynaklar', nav_goals: 'Hedefler',
+    nav_tasks: 'Görevler', nav_books: 'Kitaplar',
+    new_trade: '+ Yeni İşlem', login: 'Giriş', logout: 'Çıkış',
+    home: 'Ana Sayfa', good_morning: 'Günaydın — trade yapmaya hazır mısın?',
+    dashboard: 'Panel', today: 'Bugün', week: 'Hafta', month: 'Ay', total: 'Toplam',
+    win_rate: 'Kazanma Oranı', pnl: 'K&Z', trades: 'İşlemler', profit_factor: 'Kâr Faktörü',
+    closed: 'kapatıldı', win_loss: 'Kazanç / Kayıp',
+    settings: 'Ayarlar', appearance: 'Görünüm', dark_mode: 'Karanlık Mod',
+    language: 'Dil', accent_color: 'Vurgu Rengi', trading_rules: 'Trade Kuralları',
+    data: 'Veri', export_csv: 'CSV Dışa Aktar', import_csv: 'CSV İçe Aktar',
+    delete_all: 'Hepsini Sil', save: 'Kaydet', cancel: 'İptal',
+    pair: 'Parite', date: 'Tarih', direction: 'Yön', account: 'Hesap',
+    entry: 'Giriş', stop_loss: 'Stop Loss', exit: 'Çıkış', risk: 'Risk',
+    setup: 'Setup', session: 'Seans', notes: 'Notlar',
+    new: '+ Yeni', loading: 'Yükleniyor...', no_trades: 'Henüz işlem yok',
+    add_task: 'Görev ekle'
+  },
+  nl: {
+    nav_home: 'Home', nav_start: 'Begin Hier', nav_news: 'Nieuws', nav_utilities: 'Hulpmiddelen',
+    nav_journal: 'Dagboek', nav_reviews: 'Beoordelingen', nav_knowledge: 'Kennis',
+    nav_notebook: 'Notitieboek', nav_resources: 'Bronnen', nav_goals: 'Doelen',
+    nav_tasks: 'Taken', nav_books: 'Boeken',
+    new_trade: '+ Nieuwe Trade', login: 'Inloggen', logout: 'Uitloggen',
+    home: 'Home', good_morning: 'Goedemorgen — klaar om te traden?',
+    dashboard: 'Dashboard', today: 'Vandaag', week: 'Week', month: 'Maand', total: 'Totaal',
+    win_rate: 'Win Ratio', pnl: 'W&V', trades: 'Trades', profit_factor: 'Winstfactor',
+    closed: 'gesloten', win_loss: 'Winst / Verlies',
+    settings: 'Instellingen', appearance: 'Uiterlijk', dark_mode: 'Donkere Modus',
+    language: 'Taal', accent_color: 'Accentkleur', trading_rules: 'Trade Regels',
+    data: 'Gegevens', export_csv: 'CSV Exporteren', import_csv: 'CSV Importeren',
+    delete_all: 'Alles Verwijderen', save: 'Opslaan', cancel: 'Annuleren',
+    pair: 'Paar', date: 'Datum', direction: 'Richting', account: 'Account',
+    entry: 'Entry', stop_loss: 'Stop Loss', exit: 'Exit', risk: 'Risico',
+    setup: 'Setup', session: 'Sessie', notes: 'Notities',
+    new: '+ Nieuw', loading: 'Laden...', no_trades: 'Nog geen trades',
+    add_task: 'Taak toevoegen'
+  }
+};
+
+function getCurrentLang(){return localStorage.getItem('tj_lang')||'de';}
+
+function t(key){
+  const lang = getCurrentLang();
+  return (TRANSLATIONS[lang] && TRANSLATIONS[lang][key]) || TRANSLATIONS.de[key] || key;
+}
+
+function setLanguage(lang){
+  localStorage.setItem('tj_lang', lang);
+  applyTranslations();
+  // Update active button
+  document.querySelectorAll('.lang-btn').forEach(b=>{
+    b.classList.toggle('active', b.dataset.lang===lang);
+  });
+}
+
+function applyTranslations(){
+  const lang = getCurrentLang();
+  // Translate nav buttons
+  const navMap = {home:'nav_home',start:'nav_start',news:'nav_news',utilities:'nav_utilities',
+    journal:'nav_journal',reviews:'nav_reviews',knowledge:'nav_knowledge',
+    notebook:'nav_notebook',resources:'nav_resources',goals:'nav_goals',
+    tasks:'nav_tasks',books:'nav_books'};
+  document.querySelectorAll('.nav').forEach(btn=>{
+    const onclick = btn.getAttribute('onclick')||'';
+    const m = onclick.match(/navigate\('(\w+)'/);
+    if(m && navMap[m[1]]){
+      // Replace text node only (keep SVG)
+      btn.childNodes.forEach(node=>{
+        if(node.nodeType===3 || (node.nodeType===1 && !node.querySelector)){
+          if(node.textContent.trim()) node.textContent = t(navMap[m[1]]);
+        }
+      });
+      // Actually replace last text node
+      const textNodes = Array.from(btn.childNodes).filter(n=>n.nodeType===3 || (n.tagName==='SVG'?false:true));
+      if(textNodes.length){
+        // Find non-svg text
+        Array.from(btn.childNodes).forEach(n=>{
+          if(n.nodeType===3 && n.textContent.trim()) n.textContent = t(navMap[m[1]]);
+        });
+      }
+    }
+  });
+
+  // Translate elements with data-i18n attribute
+  document.querySelectorAll('[data-i18n]').forEach(el=>{
+    const key = el.getAttribute('data-i18n');
+    if(t(key)!==key) el.textContent = t(key);
+  });
+
+  // Translate dashboard tabs
+  const dashTabs = document.querySelectorAll('#dash-filter .dash-tab');
+  if(dashTabs.length === 4){
+    dashTabs[0].textContent = t('today');
+    dashTabs[1].textContent = t('week');
+    dashTabs[2].textContent = t('month');
+    dashTabs[3].textContent = t('total');
+  }
+
+  // Greeting
+  const greeting = document.getElementById('home-greeting');
+  if(greeting && greeting.textContent.includes('—')){
+    greeting.textContent = '☀️ ' + t('good_morning');
+  }
+
+  // Page titles via ptit elements
+  const titleMap = {home:'home'};
+  document.querySelectorAll('.page').forEach(p=>{
+    const id = p.id.replace('page-','');
+    const ptit = p.querySelector('.ptit');
+    if(ptit && titleMap[id]){
+      ptit.textContent = t(titleMap[id]);
+    }
+  });
+
+  // New Trade button in header
+  document.querySelectorAll('.hbtn').forEach(b=>{
+    if(b.textContent.includes('New Trade') || b.textContent.includes('Trade')){
+      // Keep icon but update text — match "+ New Trade" pattern
+      const txt = b.textContent.trim();
+      if(txt.match(/\+\s*(New Trade|Nuevo|Nouveau|Novo|Yeni|Nieuwe|Nuovo)/i)){
+        // Replace
+        Array.from(b.childNodes).forEach(n=>{
+          if(n.nodeType===3) n.textContent = ' ' + t('new_trade').replace('+ ','');
+        });
+      }
+    }
+  });
+}
+
+// Apply translations on load
+setTimeout(()=>{
+  try{
+    applyTranslations();
+    const cur = getCurrentLang();
+    document.querySelectorAll('.lang-btn').forEach(b=>{
+      b.classList.toggle('active', b.dataset.lang===cur);
+    });
+  }catch(e){console.warn('i18n init:',e);}
+}, 300);
+
 // ══════════ MOBILE SIDEBAR ══════════
 function toggleMobileSidebar(){
   const sb=document.getElementById('main-sidebar');
@@ -1766,6 +2042,13 @@ function toggleMobileSidebar(){
 function closeMobileSidebar(){
   document.getElementById('main-sidebar')?.classList.remove('mobile-open');
   document.getElementById('mobile-overlay')?.classList.remove('show');
+}
+
+function goHome(){
+  // Activate Home page + highlight nav button
+  const homeBtn = document.querySelector('.nav[onclick*="home"]');
+  navigate('home', homeBtn);
+  closeMobileSidebar();
 }
 
 function navigate(page,btn){
@@ -3312,6 +3595,25 @@ renderHome();renderRBarBooks();calcPS();calcRR();
     </div>
     <div class="mb" style="padding:0;">
 
+      <!-- Section: Sprache -->
+      <div style="padding:16px 20px 8px;background:var(--bg2);border-bottom:1px solid var(--border);">
+        <div style="font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--text3);">🌍 Sprache / Language</div>
+      </div>
+      <div style="padding:14px 20px;">
+        <div style="font-size:13px;font-weight:600;margin-bottom:10px;">Sprache wählen</div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:8px;" id="lang-buttons">
+          <button class="lang-btn" data-lang="de" onclick="setLanguage('de')">🇩🇪 Deutsch</button>
+          <button class="lang-btn" data-lang="en" onclick="setLanguage('en')">🇬🇧 English</button>
+          <button class="lang-btn" data-lang="es" onclick="setLanguage('es')">🇪🇸 Español</button>
+          <button class="lang-btn" data-lang="fr" onclick="setLanguage('fr')">🇫🇷 Français</button>
+          <button class="lang-btn" data-lang="it" onclick="setLanguage('it')">🇮🇹 Italiano</button>
+          <button class="lang-btn" data-lang="pt" onclick="setLanguage('pt')">🇵🇹 Português</button>
+          <button class="lang-btn" data-lang="tr" onclick="setLanguage('tr')">🇹🇷 Türkçe</button>
+          <button class="lang-btn" data-lang="nl" onclick="setLanguage('nl')">🇳🇱 Nederlands</button>
+        </div>
+        <div style="font-size:11px;color:var(--text3);margin-top:10px;">Änderung übernimmt sich automatisch.</div>
+      </div>
+
       <!-- Section: Erscheinungsbild -->
       <div style="padding:16px 20px 8px;background:var(--bg2);border-bottom:1px solid var(--border);">
         <div style="font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--text3);">🎨 Erscheinungsbild</div>
@@ -3547,6 +3849,11 @@ function openSettingsModal(){
   renderSettingsChecklist();
   const aiInput=document.getElementById('settings-ai-name');
   if(aiInput)aiInput.value=getAIName();
+  // Highlight current language
+  const cur=getCurrentLang();
+  document.querySelectorAll('.lang-btn').forEach(b=>{
+    b.classList.toggle('active', b.dataset.lang===cur);
+  });
   openModal('mo-settings');
 }
 
