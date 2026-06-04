@@ -2876,8 +2876,8 @@ function renderNotebooks(){
   const notebooks=curNBView==='favorites'?S.notebooks.filter(n=>n.favorite):S.notebooks;
   if(!notebooks.length){el.innerHTML=`<div style="padding:30px;text-align:center;color:var(--text3);">${curNBView==='favorites'?'No favorites yet. Star a notebook to pin it here.':'No notebooks yet.'}</div>`;return;}
   el.innerHTML=`<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:0;background:var(--border);">${notebooks.map(nb=>`
-    <div style="background:var(--bg);padding:16px;cursor:pointer;transition:background .13s;position:relative;" onmouseenter="this.style.background='var(--bg2)';this.querySelector('.del-btn').style.opacity='1'" onmouseleave="this.style.background='var(--bg)';this.querySelector('.del-btn').style.opacity='0'">
-      <button class="del-btn" onclick="event.stopPropagation();deleteNotebook('${nb.id}')" style="position:absolute;top:8px;right:8px;background:rgba(0,0,0,.05);border:none;cursor:pointer;color:var(--red);font-size:13px;opacity:0;transition:opacity .15s;padding:4px 6px;border-radius:5px;z-index:2;" title="Löschen">🗑️</button>
+    <div style="background:var(--bg);padding:16px;cursor:pointer;transition:background .13s;position:relative;" onmouseenter="this.style.background='var(--bg2)'" onmouseleave="this.style.background='var(--bg)'">
+      <button onclick="event.stopPropagation();deleteNotebook('${nb.id}')" style="position:absolute;top:8px;right:8px;background:rgba(220,38,38,.1);border:none;cursor:pointer;color:var(--red);font-size:13px;padding:6px 8px;border-radius:5px;z-index:2;" title="Löschen">🗑️</button>
       <div style="width:100%;height:100px;background:var(--bg2);border-radius:6px;margin-bottom:10px;display:flex;align-items:center;justify-content:center;">
         <span style="font-size:40px;">${nb.icon||'📔'}</span>
       </div>
@@ -3123,9 +3123,9 @@ function renderTopics(){
   const el=document.getElementById('topics-grid');if(!el)return;
   try{
     const topicCount={};(S.resources||[]).forEach(r=>{if(r&&r.topic)topicCount[r.topic]=(topicCount[r.topic]||0)+1;});
-    el.innerHTML=(S.topics||[]).map(t=>`<div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:12px 14px;cursor:pointer;transition:background .13s;position:relative;" onmouseenter="this.style.background='var(--bg2)';this.querySelector('.del-btn').style.opacity='1'" onmouseleave="this.style.background='var(--bg)';this.querySelector('.del-btn').style.opacity='0'">
-      <button class="del-btn" onclick="event.stopPropagation();deleteTopic('${t.id}')" style="position:absolute;top:4px;right:4px;background:none;border:none;cursor:pointer;color:var(--red);font-size:12px;opacity:0;transition:opacity .15s;padding:2px 4px;" title="Löschen">🗑️</button>
-      <div style="display:flex;align-items:center;gap:7px;font-size:13px;font-weight:500;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;color:var(--text3);"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>${t.name}</div>
+    el.innerHTML=(S.topics||[]).map(t=>`<div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:12px 14px;cursor:pointer;transition:background .13s;position:relative;" onmouseenter="this.style.background='var(--bg2)'" onmouseleave="this.style.background='var(--bg)'">
+      <button onclick="event.stopPropagation();deleteTopic('${t.id}')" style="position:absolute;top:4px;right:4px;background:rgba(220,38,38,.1);border:none;cursor:pointer;color:var(--red);font-size:12px;padding:4px 6px;border-radius:4px;" title="Löschen">🗑️</button>
+      <div style="display:flex;align-items:center;gap:7px;font-size:13px;font-weight:500;padding-right:28px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;color:var(--text3);"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>${t.name}</div>
       ${topicCount[t.name]?`<div style="font-size:11px;color:var(--text2);margin-top:4px;">${topicCount[t.name]} resource${topicCount[t.name]>1?'s':''}</div>`:''}
     </div>`).join('')+`<div style="background:var(--bg);border:1px dashed var(--border2);border-radius:8px;padding:12px 14px;cursor:pointer;display:flex;align-items:center;gap:6px;color:var(--text3);font-size:12px;" onclick="openModal('mo-topic')" onmouseenter="this.style.borderColor='var(--accent)';this.style.color='var(--accent)'" onmouseleave="this.style.borderColor='var(--border2)';this.style.color='var(--text3)'"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>New Topic</div>`;
   }catch(e){console.error('renderTopics error:',e);}
@@ -3212,9 +3212,9 @@ function renderGoals(){
       <div style="background:${st.bg};color:${st.color};padding:5px 12px;border-radius:20px;font-size:12px;font-weight:600;margin-bottom:10px;display:inline-flex;align-items:center;gap:6px;">
         <span style="width:7px;height:7px;border-radius:50%;background:${st.color};display:inline-block;"></span>${st.label}
       </div>
-      ${goals.map(g=>`<div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:12px 14px;margin-bottom:8px;cursor:pointer;transition:background .13s;position:relative;" onclick="openGoalDetail('${g.id}')" onmouseenter="this.style.background='var(--bg2)';this.querySelector('.del-btn').style.opacity='1'" onmouseleave="this.style.background='var(--bg)';this.querySelector('.del-btn').style.opacity='0'">
-        <button class="del-btn" onclick="event.stopPropagation();deleteGoal('${g.id}')" style="position:absolute;top:6px;right:6px;background:none;border:none;cursor:pointer;color:var(--red);font-size:12px;opacity:0;transition:opacity .15s;padding:2px 4px;" title="Löschen">🗑️</button>
-        <div style="display:flex;align-items:center;gap:7px;font-size:13px;font-weight:500;padding-right:20px;">
+      ${goals.map(g=>`<div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:12px 14px;margin-bottom:8px;cursor:pointer;transition:background .13s;position:relative;" onclick="openGoalDetail('${g.id}')" onmouseenter="this.style.background='var(--bg2)'" onmouseleave="this.style.background='var(--bg)'">
+        <button onclick="event.stopPropagation();deleteGoal('${g.id}')" style="position:absolute;top:6px;right:6px;background:rgba(220,38,38,.1);border:none;cursor:pointer;color:var(--red);font-size:12px;padding:4px 6px;border-radius:5px;" title="Löschen">🗑️</button>
+        <div style="display:flex;align-items:center;gap:7px;font-size:13px;font-weight:500;padding-right:30px;">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;color:var(--text3);"><rect x="2" y="7" width="20" height="14" rx="2"/></svg>
           ${g.title}
         </div>
@@ -3441,8 +3441,8 @@ function renderBooksGallery(){
   el.innerHTML=`<div style="display:grid;grid-template-columns:1fr 1fr;gap:0;background:var(--border);">${books.map(b=>{
     const prog=b.pages>0?Math.round((b.curPage/b.pages)*100):0;
     const coverHTML=b.cover?`<img src="${b.cover}" alt="${b.title}" style="width:100%;height:100%;object-fit:cover;" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div style="display:none;width:100%;height:100%;align-items:center;justify-content:center;color:#fff;font-size:12px;font-weight:700;text-align:center;padding:10px;">${b.title}</div>`:`<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:12px;font-weight:700;text-align:center;padding:10px;">${b.title}</div>`;
-    return`<div style="background:var(--bg);padding:16px;cursor:pointer;transition:background .13s;display:flex;gap:14px;align-items:flex-start;position:relative;" onclick="openBookDetail(${b.id})" onmouseenter="this.style.background='var(--bg2)';this.querySelector('.del-btn').style.opacity='1'" onmouseleave="this.style.background='var(--bg)';this.querySelector('.del-btn').style.opacity='0'">
-      <button class="del-btn" onclick="event.stopPropagation();deleteBook('${b.id}')" style="position:absolute;top:8px;right:8px;background:rgba(0,0,0,.05);border:none;cursor:pointer;color:var(--red);font-size:13px;opacity:0;transition:opacity .15s;padding:4px 6px;border-radius:5px;z-index:2;" title="Löschen">🗑️</button>
+    return`<div style="background:var(--bg);padding:16px;cursor:pointer;transition:background .13s;display:flex;gap:14px;align-items:flex-start;position:relative;" onclick="openBookDetail(${b.id})" onmouseenter="this.style.background='var(--bg2)'" onmouseleave="this.style.background='var(--bg)'">
+      <button onclick="event.stopPropagation();deleteBook('${b.id}')" style="position:absolute;top:8px;right:8px;background:rgba(220,38,38,.1);border:none;cursor:pointer;color:var(--red);font-size:13px;padding:6px 8px;border-radius:5px;z-index:2;" title="Löschen">🗑️</button>
       <div style="width:80px;height:110px;border-radius:6px;overflow:hidden;flex-shrink:0;background:${b.color};">${coverHTML}</div>
       <div style="flex:1;">
         <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg><span style="font-size:13px;font-weight:600;">${b.title}</span></div>
@@ -3486,9 +3486,9 @@ function renderBooksCategories(){
   const catCount={};S.books.forEach(b=>{if(b.cat)catCount[b.cat]=(catCount[b.cat]||0)+1;});
   el.innerHTML=`<div style="display:grid;grid-template-columns:1fr 1fr;gap:0;background:var(--border);">${S.bookCats.map(c=>{
     const count=catCount[c.name]||0;
-    return`<div style="background:var(--bg);padding:14px 16px;cursor:pointer;transition:background .13s;position:relative;" onmouseenter="this.style.background='var(--bg2)';this.querySelector('.del-btn').style.opacity='1'" onmouseleave="this.style.background='var(--bg)';this.querySelector('.del-btn').style.opacity='0'">
-      <button class="del-btn" onclick="event.stopPropagation();deleteBookCat('${c.id}')" style="position:absolute;top:8px;right:8px;background:none;border:none;cursor:pointer;color:var(--red);font-size:13px;opacity:0;transition:opacity .15s;padding:4px;" title="Löschen">🗑️</button>
-      <div style="display:flex;align-items:center;gap:8px;font-size:13px;font-weight:600;margin-bottom:4px;padding-right:20px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;"><rect x="2" y="7" width="20" height="14" rx="2"/></svg>${c.name}</div>
+    return`<div style="background:var(--bg);padding:14px 16px;cursor:pointer;transition:background .13s;position:relative;" onmouseenter="this.style.background='var(--bg2)'" onmouseleave="this.style.background='var(--bg)'">
+      <button onclick="event.stopPropagation();deleteBookCat('${c.id}')" style="position:absolute;top:8px;right:8px;background:rgba(220,38,38,.1);border:none;cursor:pointer;color:var(--red);font-size:13px;padding:4px 6px;border-radius:4px;" title="Löschen">🗑️</button>
+      <div style="display:flex;align-items:center;gap:8px;font-size:13px;font-weight:600;margin-bottom:4px;padding-right:30px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;"><rect x="2" y="7" width="20" height="14" rx="2"/></svg>${c.name}</div>
       <div style="font-size:12px;color:var(--text2);">${count>0?count+' Book'+(count>1?'s':''):'Add a book to this collection'}</div>
     </div>`;
   }).join('')}
