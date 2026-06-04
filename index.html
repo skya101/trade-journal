@@ -1420,9 +1420,9 @@ let auth = null, db = null, currentUser = null;
 // Sobald jemand einen Code benutzt, wird er in Firebase als "claimed" markiert
 const ACCESS_CODES = {
   'SKYA-OWNER-2026': 'Du selbst (Master Code, unlimited)',
-  'Bro1234': 'Furkan #1',
-  'BRO-123': 'Conner #2',
-  'BR123': 'Tim #3',
+  'BRO-001': 'Freund #1',
+  'BRO-002': 'Freund #2',
+  'BRO-003': 'Freund #3',
   'BRO-004': 'Freund #4',
   'BRO-005': 'Freund #5',
   // Mehr Codes hier hinzufügen — z.B.: 'MAX-2026': 'Max',
@@ -2876,7 +2876,8 @@ function renderNotebooks(){
   const notebooks=curNBView==='favorites'?S.notebooks.filter(n=>n.favorite):S.notebooks;
   if(!notebooks.length){el.innerHTML=`<div style="padding:30px;text-align:center;color:var(--text3);">${curNBView==='favorites'?'No favorites yet. Star a notebook to pin it here.':'No notebooks yet.'}</div>`;return;}
   el.innerHTML=`<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:0;background:var(--border);">${notebooks.map(nb=>`
-    <div style="background:var(--bg);padding:16px;cursor:pointer;transition:background .13s;" onmouseenter="this.style.background='var(--bg2)'" onmouseleave="this.style.background='var(--bg)'">
+    <div style="background:var(--bg);padding:16px;cursor:pointer;transition:background .13s;position:relative;" onmouseenter="this.style.background='var(--bg2)';this.querySelector('.del-btn').style.opacity='1'" onmouseleave="this.style.background='var(--bg)';this.querySelector('.del-btn').style.opacity='0'">
+      <button class="del-btn" onclick="event.stopPropagation();deleteNotebook('${nb.id}')" style="position:absolute;top:8px;right:8px;background:rgba(0,0,0,.05);border:none;cursor:pointer;color:var(--red);font-size:13px;opacity:0;transition:opacity .15s;padding:4px 6px;border-radius:5px;z-index:2;" title="Löschen">🗑️</button>
       <div style="width:100%;height:100px;background:var(--bg2);border-radius:6px;margin-bottom:10px;display:flex;align-items:center;justify-content:center;">
         <span style="font-size:40px;">${nb.icon||'📔'}</span>
       </div>
@@ -2906,7 +2907,7 @@ function renderNotes(){
   else if(curNotesFilter==='final') notes=notes.filter(n=>n.status==='final');
   else if(curNotesFilter==='favorite') notes=notes.filter(n=>n.status==='favorite');
   if(!notes.length){g.innerHTML=`<div style="padding:20px;display:flex;align-items:center;justify-content:center;gap:10px;color:var(--text3);font-size:13px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>New page</div>`;return;}
-  g.innerHTML=`<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:16px;">${notes.map(n=>`<div class="nc"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;"><div style="font-size:13px;font-weight:600;">${n.title}</div><span class="tag ${n.status==='final'?'tg':n.status==='draft'?'to':n.status==='favorite'?'tyl':'tb'}" style="font-size:10px;">${n.status||'to do'}</span></div><div style="font-size:12px;color:var(--text2);line-height:1.6;">${n.body}</div><div style="display:flex;align-items:center;justify-content:space-between;margin-top:8px;"><span class="tag tgr" style="font-size:10px;">${n.tag||'General'}</span><span style="font-size:11px;color:var(--text3);">${fmtD(n.date)}</span></div></div>`).join('')}</div>
+  g.innerHTML=`<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:16px;">${notes.map(n=>`<div class="nc" style="position:relative;"><button onclick="deleteNote('${n.id}')" style="position:absolute;top:8px;right:8px;background:none;border:none;cursor:pointer;color:var(--red);font-size:13px;padding:4px;opacity:.6;" title="Löschen">🗑️</button><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;padding-right:24px;"><div style="font-size:13px;font-weight:600;">${n.title}</div><span class="tag ${n.status==='final'?'tg':n.status==='draft'?'to':n.status==='favorite'?'tyl':'tb'}" style="font-size:10px;">${n.status||'to do'}</span></div><div style="font-size:12px;color:var(--text2);line-height:1.6;">${n.body}</div><div style="display:flex;align-items:center;justify-content:space-between;margin-top:8px;"><span class="tag tgr" style="font-size:10px;">${n.tag||'General'}</span><span style="font-size:11px;color:var(--text3);">${fmtD(n.date)}</span></div></div>`).join('')}</div>
   <div class="dt-add" onclick="openModal('mo-note')"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>New page</div>`;
 }
 const qnEl=document.getElementById('qn');qnEl.value=localStorage.getItem('tj_qn')||'';
@@ -2962,6 +2963,71 @@ function deleteSetup(id){
   S.setups=S.setups.filter(x=>x.id!==id);sv('setups',S.setups);
   renderSetupsGallery();renderSetupsSidebar();
 }
+
+// ══════════ UNIVERSAL DELETE FUNCTIONS ══════════
+function deleteResource(id){
+  if(!confirm('Resource wirklich löschen?'))return;
+  S.resources=S.resources.filter(x=>String(x.id)!==String(id));
+  sv('resources',S.resources);
+  try{renderResources();renderResStats();}catch(e){}
+}
+
+function deleteTopic(id){
+  if(!confirm('Topic wirklich löschen?'))return;
+  S.topics=S.topics.filter(x=>String(x.id)!==String(id));
+  sv('topics',S.topics);
+  try{renderTopics();}catch(e){}
+}
+
+function deleteNotebook(id){
+  if(!confirm('Notebook wirklich löschen?'))return;
+  S.notebooks=S.notebooks.filter(x=>String(x.id)!==String(id));
+  sv('notebooks',S.notebooks);
+  try{renderNotebooks();}catch(e){}
+}
+
+function deleteNote(id){
+  if(!confirm('Note wirklich löschen?'))return;
+  S.notes=S.notes.filter(x=>String(x.id)!==String(id));
+  sv('notes',S.notes);
+  try{renderNotes();}catch(e){}
+}
+
+function deleteGoal(id){
+  if(!confirm('Goal wirklich löschen?'))return;
+  S.goals=S.goals.filter(x=>String(x.id)!==String(id));
+  sv('goals',S.goals);
+  try{renderGoals();}catch(e){}
+}
+
+function deleteTask(id){
+  if(!confirm('Task wirklich löschen?'))return;
+  S.tasks=S.tasks.filter(x=>String(x.id)!==String(id));
+  sv('tasks',S.tasks);
+  try{renderTasksPage();renderTasksArchive();renderHome();}catch(e){}
+}
+
+function deleteBook(id){
+  if(!confirm('Buch wirklich löschen?'))return;
+  S.books=S.books.filter(x=>String(x.id)!==String(id));
+  sv('books',S.books);
+  try{renderBooksGallery();renderBooksPage();renderRBarBooks();}catch(e){}
+}
+
+function deleteBookCat(id){
+  if(!confirm('Kategorie wirklich löschen?'))return;
+  S.bookCats=S.bookCats.filter(x=>String(x.id)!==String(id));
+  sv('bookcats',S.bookCats);
+  try{renderBooksCategories();}catch(e){}
+}
+
+function deleteQuote(id){
+  if(!confirm('Zitat wirklich löschen?'))return;
+  S.quotes=S.quotes.filter(x=>String(x.id)!==String(id));
+  sv('quotes',S.quotes);
+  try{renderQuotes();}catch(e){}
+}
+
 const DEFAULT_TOPICS=[
   {id:'tp1',name:'Personal',icon:'👤'},
   {id:'tp2',name:'Trading',icon:'📈'},
@@ -3032,7 +3098,7 @@ function renderResources(){
       renderResStats();
       return;
     }
-    el.innerHTML=res.map(r=>`<div class="ri" style="cursor:pointer;" onclick="openResDetail('${r.id}')">
+    el.innerHTML=res.map(r=>`<div class="ri" style="cursor:pointer;display:flex;align-items:center;gap:10px;" onclick="openResDetail('${r.id}')">
       <div class="rico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 012-2h10a2 2 0 012 2z"/></svg></div>
       <div style="flex:1;">
         <div style="font-size:13px;font-weight:500;margin-bottom:2px;">${r.title||'Untitled'}</div>
@@ -3043,6 +3109,7 @@ function renderResources(){
           ${r.topic?`<span class="tag tgr" style="font-size:10px;">${r.topic}</span>`:''}
         </div>
       </div>
+      <button onclick="event.stopPropagation();deleteResource('${r.id}')" style="background:none;border:none;cursor:pointer;color:var(--red);font-size:14px;padding:6px;" title="Löschen">🗑️</button>
     </div>`).join('')+`<div class="dt-add" onclick="openModal('mo-resource')"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>New page</div>`;
     renderResStats();
   }catch(e){
@@ -3056,7 +3123,8 @@ function renderTopics(){
   const el=document.getElementById('topics-grid');if(!el)return;
   try{
     const topicCount={};(S.resources||[]).forEach(r=>{if(r&&r.topic)topicCount[r.topic]=(topicCount[r.topic]||0)+1;});
-    el.innerHTML=(S.topics||[]).map(t=>`<div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:12px 14px;cursor:pointer;transition:background .13s;" onmouseenter="this.style.background='var(--bg2)'" onmouseleave="this.style.background='var(--bg)'">
+    el.innerHTML=(S.topics||[]).map(t=>`<div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:12px 14px;cursor:pointer;transition:background .13s;position:relative;" onmouseenter="this.style.background='var(--bg2)';this.querySelector('.del-btn').style.opacity='1'" onmouseleave="this.style.background='var(--bg)';this.querySelector('.del-btn').style.opacity='0'">
+      <button class="del-btn" onclick="event.stopPropagation();deleteTopic('${t.id}')" style="position:absolute;top:4px;right:4px;background:none;border:none;cursor:pointer;color:var(--red);font-size:12px;opacity:0;transition:opacity .15s;padding:2px 4px;" title="Löschen">🗑️</button>
       <div style="display:flex;align-items:center;gap:7px;font-size:13px;font-weight:500;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;color:var(--text3);"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>${t.name}</div>
       ${topicCount[t.name]?`<div style="font-size:11px;color:var(--text2);margin-top:4px;">${topicCount[t.name]} resource${topicCount[t.name]>1?'s':''}</div>`:''}
     </div>`).join('')+`<div style="background:var(--bg);border:1px dashed var(--border2);border-radius:8px;padding:12px 14px;cursor:pointer;display:flex;align-items:center;gap:6px;color:var(--text3);font-size:12px;" onclick="openModal('mo-topic')" onmouseenter="this.style.borderColor='var(--accent)';this.style.color='var(--accent)'" onmouseleave="this.style.borderColor='var(--border2)';this.style.color='var(--text3)'"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>New Topic</div>`;
@@ -3144,8 +3212,9 @@ function renderGoals(){
       <div style="background:${st.bg};color:${st.color};padding:5px 12px;border-radius:20px;font-size:12px;font-weight:600;margin-bottom:10px;display:inline-flex;align-items:center;gap:6px;">
         <span style="width:7px;height:7px;border-radius:50%;background:${st.color};display:inline-block;"></span>${st.label}
       </div>
-      ${goals.map(g=>`<div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:12px 14px;margin-bottom:8px;cursor:pointer;transition:background .13s;" onclick="openGoalDetail('${g.id}')" onmouseenter="this.style.background='var(--bg2)'" onmouseleave="this.style.background='var(--bg)'">
-        <div style="display:flex;align-items:center;gap:7px;font-size:13px;font-weight:500;">
+      ${goals.map(g=>`<div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:12px 14px;margin-bottom:8px;cursor:pointer;transition:background .13s;position:relative;" onclick="openGoalDetail('${g.id}')" onmouseenter="this.style.background='var(--bg2)';this.querySelector('.del-btn').style.opacity='1'" onmouseleave="this.style.background='var(--bg)';this.querySelector('.del-btn').style.opacity='0'">
+        <button class="del-btn" onclick="event.stopPropagation();deleteGoal('${g.id}')" style="position:absolute;top:6px;right:6px;background:none;border:none;cursor:pointer;color:var(--red);font-size:12px;opacity:0;transition:opacity .15s;padding:2px 4px;" title="Löschen">🗑️</button>
+        <div style="display:flex;align-items:center;gap:7px;font-size:13px;font-weight:500;padding-right:20px;">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;color:var(--text3);"><rect x="2" y="7" width="20" height="14" rx="2"/></svg>
           ${g.title}
         </div>
@@ -3240,8 +3309,11 @@ function renderTasksPage(){
       <span class="td2">${t.due?fmtD(t.due):''}</span>
       <span class="tag ${ptag(t.priority)}" style="font-size:10px;">${t.priority}</span>
     </div>
-    <div style="width:18px;height:18px;border-radius:4px;background:${t.done?'var(--accent)':'transparent'};border:1.5px solid ${t.done?'var(--accent)':'var(--border2)'};display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;" onclick="toggleTask(${t.id})">
-      ${t.done?'<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>':''}
+    <div style="display:flex;align-items:center;gap:4px;">
+      <button onclick="deleteTask('${t.id}')" style="background:none;border:none;cursor:pointer;color:var(--red);font-size:13px;padding:4px;" title="Löschen">🗑️</button>
+      <div style="width:18px;height:18px;border-radius:4px;background:${t.done?'var(--accent)':'transparent'};border:1.5px solid ${t.done?'var(--accent)':'var(--border2)'};display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;" onclick="toggleTask(${t.id})">
+        ${t.done?'<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>':''}
+      </div>
     </div>
   </div>`;
   el.innerHTML=tasks.map(ri).join('')+`<div class="dt-add" onclick="openModal('mo-task')"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>New page</div>`;
@@ -3369,7 +3441,8 @@ function renderBooksGallery(){
   el.innerHTML=`<div style="display:grid;grid-template-columns:1fr 1fr;gap:0;background:var(--border);">${books.map(b=>{
     const prog=b.pages>0?Math.round((b.curPage/b.pages)*100):0;
     const coverHTML=b.cover?`<img src="${b.cover}" alt="${b.title}" style="width:100%;height:100%;object-fit:cover;" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div style="display:none;width:100%;height:100%;align-items:center;justify-content:center;color:#fff;font-size:12px;font-weight:700;text-align:center;padding:10px;">${b.title}</div>`:`<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:12px;font-weight:700;text-align:center;padding:10px;">${b.title}</div>`;
-    return`<div style="background:var(--bg);padding:16px;cursor:pointer;transition:background .13s;display:flex;gap:14px;align-items:flex-start;" onclick="openBookDetail(${b.id})" onmouseenter="this.style.background='var(--bg2)'" onmouseleave="this.style.background='var(--bg)'">
+    return`<div style="background:var(--bg);padding:16px;cursor:pointer;transition:background .13s;display:flex;gap:14px;align-items:flex-start;position:relative;" onclick="openBookDetail(${b.id})" onmouseenter="this.style.background='var(--bg2)';this.querySelector('.del-btn').style.opacity='1'" onmouseleave="this.style.background='var(--bg)';this.querySelector('.del-btn').style.opacity='0'">
+      <button class="del-btn" onclick="event.stopPropagation();deleteBook('${b.id}')" style="position:absolute;top:8px;right:8px;background:rgba(0,0,0,.05);border:none;cursor:pointer;color:var(--red);font-size:13px;opacity:0;transition:opacity .15s;padding:4px 6px;border-radius:5px;z-index:2;" title="Löschen">🗑️</button>
       <div style="width:80px;height:110px;border-radius:6px;overflow:hidden;flex-shrink:0;background:${b.color};">${coverHTML}</div>
       <div style="flex:1;">
         <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg><span style="font-size:13px;font-weight:600;">${b.title}</span></div>
@@ -3413,8 +3486,9 @@ function renderBooksCategories(){
   const catCount={};S.books.forEach(b=>{if(b.cat)catCount[b.cat]=(catCount[b.cat]||0)+1;});
   el.innerHTML=`<div style="display:grid;grid-template-columns:1fr 1fr;gap:0;background:var(--border);">${S.bookCats.map(c=>{
     const count=catCount[c.name]||0;
-    return`<div style="background:var(--bg);padding:14px 16px;cursor:pointer;transition:background .13s;" onmouseenter="this.style.background='var(--bg2)'" onmouseleave="this.style.background='var(--bg)'">
-      <div style="display:flex;align-items:center;gap:8px;font-size:13px;font-weight:600;margin-bottom:4px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;"><rect x="2" y="7" width="20" height="14" rx="2"/></svg>${c.name}</div>
+    return`<div style="background:var(--bg);padding:14px 16px;cursor:pointer;transition:background .13s;position:relative;" onmouseenter="this.style.background='var(--bg2)';this.querySelector('.del-btn').style.opacity='1'" onmouseleave="this.style.background='var(--bg)';this.querySelector('.del-btn').style.opacity='0'">
+      <button class="del-btn" onclick="event.stopPropagation();deleteBookCat('${c.id}')" style="position:absolute;top:8px;right:8px;background:none;border:none;cursor:pointer;color:var(--red);font-size:13px;opacity:0;transition:opacity .15s;padding:4px;" title="Löschen">🗑️</button>
+      <div style="display:flex;align-items:center;gap:8px;font-size:13px;font-weight:600;margin-bottom:4px;padding-right:20px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;"><rect x="2" y="7" width="20" height="14" rx="2"/></svg>${c.name}</div>
       <div style="font-size:12px;color:var(--text2);">${count>0?count+' Book'+(count>1?'s':''):'Add a book to this collection'}</div>
     </div>`;
   }).join('')}
@@ -3436,8 +3510,9 @@ function renderQuotes(){
     </div>`;
     return;
   }
-  el.innerHTML=`<div style="padding:14px;display:grid;gap:10px;">${quotes.map(q=>`<div style="background:var(--bg2);border-radius:8px;padding:14px 16px;border-left:3px solid var(--accent);">
-    <div style="font-size:13px;font-style:italic;color:var(--text);margin-bottom:6px;">"${q.text}"</div>
+  el.innerHTML=`<div style="padding:14px;display:grid;gap:10px;">${quotes.map(q=>`<div style="background:var(--bg2);border-radius:8px;padding:14px 16px;border-left:3px solid var(--accent);position:relative;">
+    <button onclick="deleteQuote('${q.id}')" style="position:absolute;top:8px;right:8px;background:none;border:none;cursor:pointer;color:var(--red);font-size:13px;padding:4px;opacity:.6;" title="Löschen">🗑️</button>
+    <div style="font-size:13px;font-style:italic;color:var(--text);margin-bottom:6px;padding-right:24px;">"${q.text}"</div>
     <div style="font-size:11px;color:var(--text3);">— ${q.source||'Unknown'} ${q.fav==='yes'?'⭐':''}</div>
   </div>`).join('')}
   <div class="dt-add" onclick="openModal('mo-quote')"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>New page</div>
