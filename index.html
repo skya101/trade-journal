@@ -21,6 +21,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script>
 // Initialize Firebase immediately after scripts load
 const firebaseConfig = {
@@ -126,6 +127,22 @@ body{background:var(--bg3);color:var(--text);font-size:14px;height:100vh;overflo
 .lang-btn{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:8px 10px;font-size:12px;cursor:pointer;color:var(--text);font-family:inherit;text-align:center;transition:all .13s;}
 .lang-btn:hover{background:var(--bg3);border-color:var(--border2);}
 .lang-btn.active{background:var(--accent);color:#fff;border-color:var(--accent);font-weight:600;}
+.news-tab{background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:5px 10px;font-size:12px;cursor:pointer;color:var(--text2);font-family:inherit;transition:all .13s;}
+.news-tab:hover{background:var(--bg3);}
+.news-tab.active{background:var(--accent);color:#fff;border-color:var(--accent);font-weight:600;}
+.news-item{padding:12px 14px;border-bottom:1px solid var(--border);transition:background .13s;cursor:pointer;}
+.news-item:hover{background:var(--bg2);}
+.news-item:last-child{border-bottom:none;}
+.news-source{font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--accent);}
+.news-time{font-size:10px;color:var(--text3);margin-left:8px;}
+.news-title{font-size:13px;font-weight:600;color:var(--text);line-height:1.4;margin-top:4px;}
+.news-desc{font-size:11px;color:var(--text2);line-height:1.4;margin-top:4px;}
+.news-tag{display:inline-block;font-size:9px;padding:1px 6px;border-radius:3px;margin-left:5px;font-weight:600;}
+.tag-mkt{background:rgba(59,130,246,.15);color:#3b82f6;}
+.tag-cry{background:rgba(245,158,11,.15);color:#f59e0b;}
+.tag-geo{background:rgba(239,68,68,.15);color:#ef4444;}
+.tag-war{background:rgba(220,38,38,.15);color:#dc2626;}
+.tag-eco{background:rgba(34,197,94,.15);color:#22c55e;}
 .dash-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;}
 @media(max-width:900px){.dash-grid{grid-template-columns:repeat(2,1fr);}}
 
@@ -133,6 +150,9 @@ body{background:var(--bg3);color:var(--text);font-size:14px;height:100vh;overflo
 .mobile-menu-btn{display:none;background:none;border:none;cursor:pointer;padding:6px;font-size:20px;color:var(--text);}
 .mobile-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:48;}
 @media(max-width:768px){
+  #globe-layout{grid-template-columns:1fr !important;}
+  #globe-container{min-height:320px;}
+  #globe-side{max-height:300px;border-left:none !important;border-top:1px solid rgba(255,255,255,.1);}
   body{height:100vh;height:100dvh;overflow:hidden;}
   .mobile-menu-btn{display:flex;align-items:center;}
   .layout{position:relative;}
@@ -949,11 +969,96 @@ textarea.fi{resize:vertical;min-height:70px;}
 
 <!-- NEWS -->
 <div class="page" id="page-news"><div class="ptit">News</div>
-  <div class="news-grid">
-    <div class="nwc"><div class="nwt"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Economic</div><div style="height:380px;"><div class="tradingview-widget-container" style="height:380px;"><div class="tradingview-widget-container__widget" style="height:380px;"></div><script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-events.js" async>{"colorTheme":"light","isTransparent":false,"width":"100%","height":"380","locale":"en","importanceFilter":"-1,0,1","countryFilter":"us,eu,gb,jp"}</script></div></div></div>
-    <div class="nwc"><div class="nwt"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/></svg>Earnings</div><div style="height:380px;"><iframe src="https://s3.tradingview.com/external-embedding/embed-widget-earnings-calendar.js?locale=en&colorTheme=light&isTransparent=false&width=100%25&height=380" style="width:100%;height:380px;border:none;" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'" allowtransparency="true"></iframe><div style="display:none;height:380px;align-items:center;justify-content:center;flex-direction:column;gap:10px;color:var(--text3);font-size:13px;"><div>📅 Earnings Calendar</div><a href="https://www.tradingview.com/markets/stocks-usa/earnings/" target="_blank" style="color:var(--accent);font-size:12px;">→ Auf TradingView öffnen</a></div></div></div>
+  
+  <!-- 3D GEOPOLITICS GLOBE -->
+  <div class="card" style="overflow:hidden;background:linear-gradient(180deg, #0a0e1a 0%, #0f172a 100%);">
+    <div style="padding:14px 16px;border-bottom:1px solid rgba(255,255,255,.1);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;">
+      <div style="display:flex;align-items:center;gap:8px;font-size:14px;font-weight:700;color:#fff;">
+        🌍 Live Geopolitik Globe
+        <span id="globe-status" style="font-size:10px;color:#22c55e;background:rgba(34,197,94,.15);padding:2px 8px;border-radius:10px;">● Live</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <span style="font-size:11px;color:rgba(255,255,255,.5);">🔴 Größere Punkte = mehr Aktivität</span>
+        <button onclick="refreshGlobe()" style="background:rgba(124,58,237,.2);color:#a78bfa;border:1px solid rgba(124,58,237,.3);border-radius:6px;padding:5px 10px;font-size:12px;cursor:pointer;display:flex;align-items:center;gap:5px;">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 4v6h-6"/><path d="M1 20v-6h6"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg>
+          Refresh
+        </button>
+      </div>
+    </div>
+    
+    <div style="display:grid;grid-template-columns:1fr 320px;min-height:480px;" id="globe-layout">
+      <!-- 3D Canvas -->
+      <div id="globe-container" style="position:relative;background:radial-gradient(ellipse at center, #1e293b 0%, #0a0e1a 100%);overflow:hidden;">
+        <canvas id="globe-canvas" style="display:block;width:100%;height:100%;cursor:grab;"></canvas>
+        <div id="globe-loader" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,.5);font-size:13px;">🌍 Lade Globe...</div>
+      </div>
+      
+      <!-- Event Detail / AI Analysis -->
+      <div id="globe-side" style="background:rgba(15,23,42,.8);border-left:1px solid rgba(255,255,255,.1);padding:14px;overflow-y:auto;max-height:480px;">
+        <div id="globe-event-detail">
+          <div style="text-align:center;color:rgba(255,255,255,.4);font-size:12px;padding:40px 10px;">
+            👆 Klick auf einen Punkt im Globus für<br>KI-Analyse der Marktauswirkungen
+          </div>
+        </div>
+        <div style="margin-top:16px;padding-top:16px;border-top:1px solid rgba(255,255,255,.1);">
+          <div style="font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:rgba(255,255,255,.5);margin-bottom:8px;">🔥 Hotspots aktuell</div>
+          <div id="globe-hotspots" style="display:flex;flex-direction:column;gap:6px;"></div>
+        </div>
+      </div>
+    </div>
   </div>
-  <div class="nwc"><div class="nwt"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10l6 6v8a2 2 0 01-2 2z"/></svg>News</div><div style="height:400px;"><div class="tradingview-widget-container" style="height:400px;"><div class="tradingview-widget-container__widget" style="height:400px;"></div><script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-timeline.js" async>{"colorTheme":"light","isTransparent":false,"displayMode":"regular","width":"100%","height":"400","locale":"en","feedMode":"all_symbols"}</script></div></div></div>
+  
+  <!-- LIVE NEWS AGGREGATOR -->
+  <div class="card" style="overflow:hidden;">
+    <div style="padding:14px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;">
+      <div style="display:flex;align-items:center;gap:8px;font-size:14px;font-weight:700;">
+        🌍 Live News Aggregator
+        <span id="news-status" style="font-size:10px;color:var(--green);background:rgba(34,197,94,.1);padding:2px 8px;border-radius:10px;">● Live</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <span id="news-updated" style="font-size:11px;color:var(--text3);">–</span>
+        <button onclick="refreshAllNews()" class="bn" style="padding:5px 10px;font-size:12px;display:flex;align-items:center;gap:5px;">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 4v6h-6"/><path d="M1 20v-6h6"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg>
+          Refresh
+        </button>
+      </div>
+    </div>
+    
+    <!-- Category Tabs -->
+    <div style="padding:10px 16px;border-bottom:1px solid var(--border);background:var(--bg2);display:flex;gap:6px;flex-wrap:wrap;" id="news-tabs">
+      <button class="news-tab active" data-cat="all" onclick="setNewsCategory('all',this)">⚡ Alle News</button>
+      <button class="news-tab" data-cat="markets" onclick="setNewsCategory('markets',this)">📊 Markets</button>
+      <button class="news-tab" data-cat="crypto" onclick="setNewsCategory('crypto',this)">₿ Crypto</button>
+      <button class="news-tab" data-cat="geopolitics" onclick="setNewsCategory('geopolitics',this)">🌐 Geopolitics</button>
+      <button class="news-tab" data-cat="wars" onclick="setNewsCategory('wars',this)">⚔️ Wars & Conflicts</button>
+      <button class="news-tab" data-cat="economics" onclick="setNewsCategory('economics',this)">💼 Economics</button>
+    </div>
+    
+    <!-- Search -->
+    <div style="padding:10px 16px;border-bottom:1px solid var(--border);">
+      <input type="text" id="news-search" placeholder="🔍 News durchsuchen..." style="width:100%;padding:8px 12px;border:1px solid var(--border);border-radius:8px;font-size:13px;background:var(--bg2);color:var(--text);outline:none;font-family:inherit;" oninput="filterNews(this.value)">
+    </div>
+    
+    <!-- News Feed -->
+    <div id="news-feed" style="max-height:600px;overflow-y:auto;padding:8px;">
+      <div style="padding:30px;text-align:center;color:var(--text3);font-size:13px;">📡 Lade News...</div>
+    </div>
+  </div>
+  
+  <!-- Live Markets + Conflict Tracker -->
+  <div class="news-grid">
+    <div class="nwc">
+      <div class="nwt"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Economic Calendar</div>
+      <div style="height:380px;"><div class="tradingview-widget-container" style="height:380px;"><div class="tradingview-widget-container__widget" style="height:380px;"></div><script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-events.js" async>{"colorTheme":"light","isTransparent":false,"width":"100%","height":"380","locale":"en","importanceFilter":"-1,0,1","countryFilter":"us,eu,gb,jp"}</script></div></div>
+    </div>
+    <div class="nwc">
+      <div class="nwt">⚔️ Live Conflict Tracker</div>
+      <div id="conflict-tracker" style="height:380px;overflow-y:auto;padding:8px;">
+        <div style="padding:30px;text-align:center;color:var(--text3);font-size:13px;">Lade...</div>
+      </div>
+    </div>
+  </div>
+
 </div>
 
 <!-- UTILITIES -->
@@ -1445,7 +1550,7 @@ async function checkAccessCode(){
 
   // Invalid code
   if(!ACCESS_CODES[input]){
-    err.textContent='Falscher Code. Frag den Besitzer der App.';
+    err.textContent='❌ Falscher Code. Frag den Besitzer der App.';
     err.style.display='block';
     document.getElementById('access-code-input').value='';
     return;
@@ -1459,14 +1564,14 @@ async function checkAccessCode(){
     return;
   }
 
-  // Check Firebase if code is already claimed
+  // Check Firebase - STRICT DEVICE LOCK
   btn.disabled=true;
   btn.textContent='Prüfe Code...';
   err.style.display='none';
 
   try{
     if(!FIREBASE_OK){
-      // Fallback: no Firebase = no tracking, allow it
+      // No Firebase = allow but warn
       localStorage.setItem('tj_access_code',input);
       localStorage.setItem('tj_access_verified','yes');
       document.getElementById('access-gate').style.display='none';
@@ -1476,34 +1581,41 @@ async function checkAccessCode(){
     const db = firebase.firestore();
     const codeDoc = db.collection('accessCodes').doc(input);
     const snapshot = await codeDoc.get();
+    const myFingerprint = getMyFingerprint();
 
     if(snapshot.exists){
       const data = snapshot.data();
-      // Code wurde bereits beansprucht
-      // Check ob es dieser User selbst war (Browser fingerprint)
-      const myFingerprint = getMyFingerprint();
+      
+      // STRICT: only the device that first claimed can use this code
       if(data.fingerprint === myFingerprint){
-        // Same user, same code — allow access
+        // Same device - welcome back
         localStorage.setItem('tj_access_code',input);
         localStorage.setItem('tj_access_verified','yes');
         document.getElementById('access-gate').style.display='none';
+        // Update last-used timestamp
+        codeDoc.update({lastUsed: firebase.firestore.FieldValue.serverTimestamp()}).catch(()=>{});
         return;
       }
-      // Different user trying to use same code
-      err.textContent='❌ Code wurde bereits benutzt von einer anderen Person.';
+      
+      // Different device → BLOCKED
+      const claimedDate = data.claimedAt?.toDate ? data.claimedAt.toDate().toLocaleDateString('de-DE') : 'früher';
+      err.innerHTML = `🔒 <b>Code bereits an Gerät gebunden</b> (seit ${claimedDate}).<br><br>Dieser Code kann nur vom ursprünglichen Gerät verwendet werden. Frag den Besitzer um einen eigenen Code.`;
       err.style.display='block';
+      err.style.color='#ef4444';
       btn.disabled=false;
       btn.innerHTML='🔓 Zugang freischalten';
       return;
     }
 
-    // Code ist frei → claim it for this user
+    // First time use → claim it for THIS device
     await codeDoc.set({
       code: input,
       description: ACCESS_CODES[input],
-      fingerprint: getMyFingerprint(),
+      fingerprint: myFingerprint,
       claimedAt: firebase.firestore.FieldValue.serverTimestamp(),
-      userAgent: navigator.userAgent.substring(0,100)
+      lastUsed: firebase.firestore.FieldValue.serverTimestamp(),
+      userAgent: navigator.userAgent.substring(0,150),
+      platform: navigator.platform || 'unknown'
     });
 
     localStorage.setItem('tj_access_code',input);
@@ -1511,7 +1623,7 @@ async function checkAccessCode(){
     document.getElementById('access-gate').style.display='none';
   } catch(e){
     console.warn('Access check error:',e);
-    // Fallback: erlaube den Zugang bei Firebase-Fehler
+    // Firebase error - allow as fallback (don't lock out due to network issues)
     localStorage.setItem('tj_access_code',input);
     localStorage.setItem('tj_access_verified','yes');
     document.getElementById('access-gate').style.display='none';
@@ -1760,6 +1872,941 @@ if(!S.setups.length){
 
 // ══════════ NAVIGATION ══════════
 const pageMap={home:'page-home',start:'page-start',news:'page-news',utilities:'page-utilities',journal:'page-journal',reviews:'page-reviews',knowledge:'page-knowledge',notebook:'page-notebook',resources:'page-resources',goals:'page-goals',tasks:'page-tasks',books:'page-books'};
+
+// ══════════ 3D GLOBE + AI TRADING IMPACT ══════════
+let globeScene, globeCamera, globeRenderer, globeMesh, globeRaf, globePoints = [];
+let globeEvents = [];
+let globeRotationSpeed = 0.0008;
+let globeAutoRotate = true;
+let globeMouseDown = false, globeMouseX = 0, globeMouseY = 0;
+
+// Geopolitical hotspots with coordinates (lat, lon)
+const HOTSPOT_REGIONS = [
+  {key:'ukraine', name:'Ukraine 🇺🇦', lat:48.4, lon:31.2, keywords:['ukraine','kyiv','zelensky','kharkiv','donbas']},
+  {key:'russia', name:'Russia 🇷🇺', lat:55.7, lon:37.6, keywords:['russia','putin','moscow','kremlin']},
+  {key:'israel', name:'Israel 🇮🇱', lat:31.5, lon:34.8, keywords:['israel','idf','netanyahu','tel aviv','jerusalem']},
+  {key:'gaza', name:'Gaza 🇵🇸', lat:31.5, lon:34.4, keywords:['gaza','hamas','palestine','rafah','west bank']},
+  {key:'iran', name:'Iran 🇮🇷', lat:32.4, lon:53.7, keywords:['iran','tehran','khamenei','irgc']},
+  {key:'lebanon', name:'Lebanon 🇱🇧', lat:33.9, lon:35.5, keywords:['lebanon','beirut','hezbollah']},
+  {key:'syria', name:'Syria 🇸🇾', lat:34.8, lon:38.9, keywords:['syria','damascus','assad']},
+  {key:'yemen', name:'Yemen 🇾🇪', lat:15.5, lon:48.5, keywords:['yemen','houthi','sanaa','red sea']},
+  {key:'china', name:'China 🇨🇳', lat:35.9, lon:104.2, keywords:['china','beijing','xi','xi jinping','ccp']},
+  {key:'taiwan', name:'Taiwan 🇹🇼', lat:23.7, lon:121.0, keywords:['taiwan','taipei','tsmc']},
+  {key:'northkorea', name:'North Korea 🇰🇵', lat:40.3, lon:127.5, keywords:['north korea','pyongyang','kim jong']},
+  {key:'sudan', name:'Sudan 🇸🇩', lat:12.9, lon:30.2, keywords:['sudan','khartoum','rsf']},
+  {key:'venezuela', name:'Venezuela 🇻🇪', lat:6.4, lon:-66.6, keywords:['venezuela','maduro','caracas']},
+  {key:'usa', name:'USA 🇺🇸', lat:38.9, lon:-77.0, keywords:['biden','trump','fed','federal reserve','washington','white house','powell']},
+  {key:'europe', name:'Europe 🇪🇺', lat:50.1, lon:8.7, keywords:['ecb','eurozone','lagarde','brussels','eu sanctions']},
+];
+
+// AI Trading Impact Knowledge Base - what each region/event means for traders
+const TRADING_IMPACTS = {
+  ukraine: {
+    summary: 'Krieg in der Ukraine beeinflusst Energie- und Rohstoffmärkte signifikant.',
+    bullish: ['🛢️ Öl (CL) — Versorgungssorgen', '🌾 Weizen — Ukraine ist Hauptexporteur', '💰 Gold (XAU) — Safe haven', '💵 USD — Risk-off', '🇪🇺 EUR Volatilität'],
+    bearish: ['📉 EU Aktien (DAX, FTSE)', '🏭 Industriewerte mit Russland-Exposure', '🇷🇺 Russian assets'],
+    watch: ['Eskalation → Erdgas TTF spike', 'Friedensgespräche → relief rally', 'Drohnen-Angriffe → kurzfristige spikes']
+  },
+  russia: {
+    summary: 'Russland-News bewegen Öl, Gas, Sanktionen-Plays und Defense-Stocks.',
+    bullish: ['🛢️ Brent/WTI', '⚡ Erdgas (NG)', '🛡️ Defense stocks (LMT, RTX, NOC)', '💰 Gold'],
+    bearish: ['🇪🇺 EUR/USD', '🌍 EM-Anleihen', '📊 Risk-on assets'],
+    watch: ['Neue Sanktionen → Öl spike', 'Putin-Statements → Vol spike', 'Energy infrastructure attacks']
+  },
+  israel: {
+    summary: 'Israel-News, besonders mit Iran/Gaza, treiben Öl + Defense + Safe Havens.',
+    bullish: ['🛢️ WTI/Brent — Middle East premium', '💰 Gold (XAU)', '🛡️ Defense (LMT, BA, NOC)', '💵 USD — Safe haven', '⚡ Erdgas'],
+    bearish: ['📊 S&P 500 kurzfristig', '🏖️ Tourism stocks', '✈️ Airlines (höhere Kerosin-Kosten)'],
+    watch: ['Iran-Eskalation → Öl >$90', 'Hormuz-Strait Bedrohung → +$10/bbl', 'Cease-fire → relief rally']
+  },
+  gaza: {
+    summary: 'Gaza-Konflikt beeinflusst regionale Stabilität und Öl-Risikoprämie.',
+    bullish: ['🛢️ Öl risk premium', '💰 Gold', '🛡️ Defense stocks'],
+    bearish: ['📊 Risk assets', '🌍 EM currencies'],
+    watch: ['Cease-fire deals → Öl drop', 'Eskalation auf Westbank', 'Iran-Israel direct conflict']
+  },
+  iran: {
+    summary: '⚠️ KRITISCH für Öl! Iran-USA Tensions sind einer der größten Öl-Treiber.',
+    bullish: ['🛢️ Öl massiv (Brent, WTI, CL)', '💰 Gold', '🛡️ Defense', '💵 USD'],
+    bearish: ['📊 Aktien (NQ, SPX)', '✈️ Airlines', '🏭 Energy-importing economies'],
+    watch: ['Hormuz-Straße Blockade → Öl +$20/bbl!', 'Direct Israel-Iran strikes', 'Sanctions easing/tightening', 'Tanker attacks']
+  },
+  yemen: {
+    summary: 'Houthi-Angriffe im Roten Meer → Shipping + Öl Auswirkungen.',
+    bullish: ['🛢️ Öl shipping premium', '🚢 Shipping rates (BDRY)', '🛡️ Defense', '💰 Gold'],
+    bearish: ['🚢 Container shipping stocks', '📦 Globaler Handel'],
+    watch: ['Tanker attacks → spot Öl rally', 'Suez Canal traffic drops']
+  },
+  china: {
+    summary: 'China-Events beeinflussen Globale Märkte, Tech und Commodities.',
+    bullish: ['🥇 Gold bei Taiwan-Tensions', '🛡️ Defense bei Spannungen', '🌾 Soybeans bei Trade deals'],
+    bearish: ['📱 Tech (Apple, NVDA, AMD)', '🚗 EVs (TSLA Exposure)', '🇭🇰 HSI', '🏭 Industrials'],
+    watch: ['Taiwan-Aktionen → TSM, NVDA crash', 'Stimulus → China stocks rally', 'Trade war escalation', 'Property sector news']
+  },
+  taiwan: {
+    summary: '🚨 EXTREMES Marktrisiko! Taiwan = 90% der modernen Chips (TSMC).',
+    bullish: ['💰 Gold massive', '🛡️ Defense extreme', '💵 USD safe haven', '🛢️ Öl'],
+    bearish: ['📉 NQ (Nasdaq) CRASH-Potential', '📱 TSM, NVDA, AMD, AAPL', '📊 SPX', '🇹🇼 Taiwan ETF'],
+    watch: ['🚨 China-Übung um Taiwan = warning', 'PLA-Manöver = vorsicht NQ', 'TSMC-Produktion Bedrohung']
+  },
+  northkorea: {
+    summary: 'NK Provokationen meist kurzfristige Volatilität, selten dauerhaft.',
+    bullish: ['💰 Gold short-term', '💵 USD/JPY safe haven plays', '🛡️ Defense'],
+    bearish: ['🇰🇷 KOSPI', '🇯🇵 Nikkei kurzfristig'],
+    watch: ['ICBM-Tests → KRW Schwäche', 'Nuclear tests → broader risk-off']
+  },
+  syria: {
+    summary: 'Syrien-News meist regional, weniger direkter Marktimpact.',
+    bullish: ['🛢️ Leichte Öl-Bewegung', '💰 Gold'],
+    bearish: ['🌍 EM-Anleihen'],
+    watch: ['US-Russland indirekte Konflikte']
+  },
+  lebanon: {
+    summary: 'Lebanon (Hezbollah) → Israel-Eskalation = Öl-Treiber.',
+    bullish: ['🛢️ Öl bei Eskalation Israel', '💰 Gold', '🛡️ Defense'],
+    bearish: ['🇮🇱 Israel ETF', 'Regional Tourism'],
+    watch: ['Hezbollah-Israel direct war = Öl +$15', 'Civilian casualties']
+  },
+  sudan: {
+    summary: 'Sudan-Konflikt: meist regionale Auswirkungen, Gold-Versorgung beeinflusst.',
+    bullish: ['💰 Gold supply concerns'],
+    bearish: ['🌍 Afrikanische EM-Plays'],
+    watch: ['RSF vs Army eskalation']
+  },
+  venezuela: {
+    summary: 'Venezuela Öl-Sanktionen → US Öl-Märkte.',
+    bullish: ['🛢️ WTI bei Sanktionen', '💰 Gold'],
+    bearish: ['🇻🇪 EM-Bonds'],
+    watch: ['Sanctions easing → WTI drop', 'Election outcomes']
+  },
+  usa: {
+    summary: 'USA: Fed, Politik, Trump/Biden = ALLES bewegt sich.',
+    bullish: ['Je nach Event verschieden'],
+    bearish: ['Je nach Event verschieden'],
+    watch: ['🚨 FOMC-Entscheidungen', 'CPI Releases', 'NFP', 'Trump-Statements bei Election', 'Election Volatility']
+  },
+  europe: {
+    summary: 'EU: ECB, Lagarde, EU-Krisen bewegen EUR und EU-Aktien.',
+    bullish: ['🇺🇸 USD bei EU-Krisen', '💰 Gold'],
+    bearish: ['🇪🇺 EUR/USD', '🏦 EU Banken', 'DAX, CAC'],
+    watch: ['ECB Rate Decision', 'Italian/French politics', 'Energie-Krisen']
+  }
+};
+
+// Convert lat/lon to 3D coordinates on sphere
+function latLonToVec3(lat, lon, radius){
+  const phi = (90 - lat) * (Math.PI / 180);
+  const theta = (lon + 180) * (Math.PI / 180);
+  const x = -(radius * Math.sin(phi) * Math.cos(theta));
+  const y = radius * Math.cos(phi);
+  const z = radius * Math.sin(phi) * Math.sin(theta);
+  return {x, y, z};
+}
+
+function initGlobe(){
+  const container = document.getElementById('globe-container');
+  const canvas = document.getElementById('globe-canvas');
+  if(!container || !canvas || typeof THREE === 'undefined') return;
+  
+  const w = container.clientWidth || 500;
+  const h = container.clientHeight || 480;
+  
+  // Scene
+  globeScene = new THREE.Scene();
+  
+  // Camera
+  globeCamera = new THREE.PerspectiveCamera(45, w/h, 0.1, 1000);
+  globeCamera.position.z = 7;
+  
+  // Renderer
+  globeRenderer = new THREE.WebGLRenderer({canvas, alpha:true, antialias:true});
+  globeRenderer.setSize(w, h);
+  globeRenderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  
+  // Earth sphere
+  const geo = new THREE.SphereGeometry(2.5, 64, 64);
+  
+  // Earth texture from a free source
+  const textureLoader = new THREE.TextureLoader();
+  textureLoader.crossOrigin = 'anonymous';
+  
+  const mat = new THREE.MeshPhongMaterial({
+    color: 0x1a4d8f,
+    emissive: 0x0a2a4a,
+    specular: 0x222244,
+    shininess: 20,
+    transparent: true,
+    opacity: 0.95,
+  });
+  
+  globeMesh = new THREE.Mesh(geo, mat);
+  globeScene.add(globeMesh);
+  
+  // Try multiple CDN sources for Earth texture
+  const earthTextures = [
+    'https://cdn.jsdelivr.net/gh/turban/webgl-earth@master/images/2_no_clouds_4k.jpg',
+    'https://raw.githubusercontent.com/turban/webgl-earth/master/images/2_no_clouds_4k.jpg',
+    'https://threejs.org/examples/textures/planets/earth_atmos_2048.jpg',
+  ];
+  
+  let textureIdx = 0;
+  function tryLoadTexture(){
+    if(textureIdx >= earthTextures.length){
+      // All failed - render continent outlines manually
+      drawContinentsAsLines();
+      return;
+    }
+    textureLoader.load(
+      earthTextures[textureIdx],
+      (texture)=>{
+        mat.map = texture;
+        mat.color.setHex(0xffffff);
+        mat.emissive.setHex(0x000000);
+        mat.needsUpdate = true;
+      },
+      undefined,
+      ()=>{
+        textureIdx++;
+        tryLoadTexture();
+      }
+    );
+  }
+  tryLoadTexture();
+  
+  // Fallback: draw continents as REAL filled polygon shapes
+  function drawContinentsAsLines(){
+    // Hide loader
+    const ldr = document.getElementById('globe-loader');
+    if(ldr) ldr.style.display = 'none';
+    
+    // Ocean color
+    mat.color.setHex(0x0a3654);
+    mat.emissive.setHex(0x041829);
+    mat.needsUpdate = true;
+    
+    // Real continent polygon outlines (simplified GeoJSON-style)
+    const continents = [
+      {
+        name:'North America', color:0x2d6a4f,
+        polygon:[[71,-156],[71,-130],[69,-105],[71,-95],[73,-80],[68,-65],[61,-58],[52,-55],[47,-52],[44,-65],[44,-75],[35,-76],[30,-82],[25,-80],[26,-97],[18,-94],[16,-97],[20,-105],[22,-110],[31,-117],[40,-124],[48,-124],[54,-130],[58,-138],[60,-148],[66,-165],[71,-156]]
+      },
+      {
+        name:'Central America', color:0x40916c,
+        polygon:[[18,-94],[16,-97],[14,-92],[10,-85],[8,-79],[12,-72],[11,-71],[18,-94]]
+      },
+      {
+        name:'South America', color:0x40916c,
+        polygon:[[12,-72],[8,-77],[2,-80],[-5,-81],[-14,-76],[-18,-71],[-23,-71],[-30,-72],[-39,-74],[-46,-75],[-53,-73],[-55,-68],[-52,-69],[-40,-62],[-34,-58],[-23,-43],[-13,-39],[-5,-35],[0,-50],[5,-52],[10,-60],[12,-72]]
+      },
+      {
+        name:'Europe', color:0x52b788,
+        polygon:[[71,28],[70,18],[67,10],[63,5],[58,7],[58,-6],[51,-10],[43,-9],[37,-9],[36,-6],[36,4],[40,20],[40,28],[45,30],[51,38],[60,40],[66,42],[71,28]]
+      },
+      {
+        name:'Africa', color:0xb08968,
+        polygon:[[36,-6],[36,4],[33,11],[35,20],[32,25],[31,35],[28,35],[22,37],[12,43],[12,52],[2,46],[-12,40],[-20,40],[-26,33],[-34,27],[-34,18],[-26,15],[-17,12],[-7,8],[5,8],[5,-7],[12,-17],[20,-17],[30,-12],[33,-9],[36,-6]]
+      },
+      {
+        name:'Middle East', color:0xa17d5c,
+        polygon:[[37,27],[37,44],[40,44],[40,50],[35,55],[28,57],[22,60],[14,52],[12,43],[15,40],[28,35],[31,35],[37,35],[37,27]]
+      },
+      {
+        name:'Asia', color:0x8c6d4b,
+        polygon:[[71,28],[78,80],[78,140],[70,170],[65,180],[60,165],[55,160],[50,155],[42,140],[34,135],[31,130],[33,127],[35,125],[30,120],[24,118],[22,108],[10,105],[1,103],[5,95],[15,95],[22,90],[20,80],[15,75],[8,77],[20,72],[24,67],[30,60],[35,55],[40,50],[40,44],[45,40],[55,40],[60,40],[66,42],[71,28]]
+      },
+      {
+        name:'India', color:0xa17d5c,
+        polygon:[[35,75],[24,67],[20,68],[12,75],[8,77],[15,80],[20,85],[25,88],[27,89],[27,95],[24,93],[22,90],[20,80],[35,75]]
+      },
+      {
+        name:'Southeast Asia / Indonesia', color:0x8c6d4b,
+        polygon:[[5,95],[1,103],[-3,105],[-8,115],[-10,120],[-10,130],[-8,140],[-3,138],[2,128],[6,121],[8,118],[10,105],[5,95]]
+      },
+      {
+        name:'Australia', color:0xc77d5c,
+        polygon:[[-11,131],[-12,142],[-17,146],[-20,149],[-28,153],[-34,151],[-38,146],[-39,141],[-35,136],[-33,127],[-32,119],[-25,114],[-22,114],[-18,122],[-15,124],[-12,131],[-11,131]]
+      },
+      {
+        name:'Greenland', color:0xb8c5d0,
+        polygon:[[83,-30],[81,-15],[77,-15],[70,-22],[60,-43],[60,-50],[68,-55],[74,-58],[78,-55],[81,-40],[83,-30]]
+      },
+      {
+        name:'UK & Ireland', color:0x52b788,
+        polygon:[[58,-5],[58,-2],[55,-2],[51,1],[51,-5],[55,-8],[58,-5]]
+      },
+      {
+        name:'Japan', color:0x8c6d4b,
+        polygon:[[45,141],[43,144],[41,141],[38,141],[35,139],[33,135],[34,131],[36,133],[39,140],[42,141],[45,141]]
+      },
+      {
+        name:'New Zealand', color:0x40916c,
+        polygon:[[-34,173],[-37,176],[-41,174],[-43,172],[-46,168],[-47,167],[-44,169],[-41,173],[-37,175],[-34,173]]
+      },
+    ];
+    
+    continents.forEach(c => {
+      // Create filled polygon as triangles on sphere
+      const shape = new THREE.Shape();
+      
+      // Sample many points along polygon for smoothness
+      const samplePoints = [];
+      for(let i = 0; i < c.polygon.length; i++){
+        const [lat, lon] = c.polygon[i];
+        const [lat2, lon2] = c.polygon[(i+1) % c.polygon.length];
+        const steps = 5;
+        for(let s = 0; s < steps; s++){
+          const t = s / steps;
+          samplePoints.push([lat + (lat2-lat)*t, lon + (lon2-lon)*t]);
+        }
+      }
+      
+      // Convert to 3D vertices
+      const vertices = samplePoints.map(([lat, lon]) => {
+        return latLonToVec3(lat, lon, 2.52);
+      });
+      
+      // Create custom geometry — fan from center
+      const center = samplePoints.reduce((acc, p) => [acc[0]+p[0], acc[1]+p[1]], [0,0]);
+      center[0] /= samplePoints.length;
+      center[1] /= samplePoints.length;
+      const centerVec = latLonToVec3(center[0], center[1], 2.52);
+      
+      const geometry = new THREE.BufferGeometry();
+      const positions = [];
+      
+      for(let i = 0; i < vertices.length; i++){
+        const next = vertices[(i+1) % vertices.length];
+        positions.push(centerVec.x, centerVec.y, centerVec.z);
+        positions.push(vertices[i].x, vertices[i].y, vertices[i].z);
+        positions.push(next.x, next.y, next.z);
+      }
+      
+      geometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
+      geometry.computeVertexNormals();
+      
+      const material = new THREE.MeshBasicMaterial({
+        color: c.color,
+        side: THREE.DoubleSide,
+        transparent: true,
+        opacity: 0.9,
+      });
+      
+      const continent = new THREE.Mesh(geometry, material);
+      globeMesh.add(continent);
+      
+      // Add bright outline
+      const outlinePoints = vertices.map(v => new THREE.Vector3(v.x*1.005, v.y*1.005, v.z*1.005));
+      outlinePoints.push(outlinePoints[0]); // close
+      const lineGeo = new THREE.BufferGeometry().setFromPoints(outlinePoints);
+      const lineMat = new THREE.LineBasicMaterial({color: 0xffffff, transparent:true, opacity:0.3});
+      const line = new THREE.Line(lineGeo, lineMat);
+      globeMesh.add(line);
+    });
+  }
+  
+  // Force fallback after 1.5 seconds if texture didn't load
+  setTimeout(()=>{
+    if(!mat.map){
+      drawContinentsAsLines();
+    }
+  }, 1500);
+  
+  // Wireframe overlay
+  const wireGeo = new THREE.SphereGeometry(2.51, 24, 18);
+  const wireMat = new THREE.MeshBasicMaterial({color: 0x4a7dbd, wireframe:true, transparent:true, opacity:0.15});
+  const wire = new THREE.Mesh(wireGeo, wireMat);
+  globeMesh.add(wire);
+  
+  // Atmosphere glow
+  const atmGeo = new THREE.SphereGeometry(2.7, 32, 32);
+  const atmMat = new THREE.MeshBasicMaterial({color:0x4a7dbd, transparent:true, opacity:0.08, side:THREE.BackSide});
+  const atm = new THREE.Mesh(atmGeo, atmMat);
+  globeScene.add(atm);
+  
+  // Lights
+  const ambient = new THREE.AmbientLight(0xffffff, 0.6);
+  globeScene.add(ambient);
+  const point = new THREE.PointLight(0xffffff, 0.8);
+  point.position.set(5, 3, 5);
+  globeScene.add(point);
+  
+  // Stars background
+  const starsGeo = new THREE.BufferGeometry();
+  const starCount = 1000;
+  const starPos = new Float32Array(starCount * 3);
+  for(let i = 0; i < starCount; i++){
+    starPos[i*3] = (Math.random() - 0.5) * 100;
+    starPos[i*3+1] = (Math.random() - 0.5) * 100;
+    starPos[i*3+2] = (Math.random() - 0.5) * 100;
+  }
+  starsGeo.setAttribute('position', new THREE.BufferAttribute(starPos, 3));
+  const starsMat = new THREE.PointsMaterial({color:0xffffff, size:0.05, transparent:true, opacity:0.8});
+  const stars = new THREE.Points(starsGeo, starsMat);
+  globeScene.add(stars);
+  
+  // Mouse controls
+  canvas.addEventListener('mousedown', (e)=>{
+    globeMouseDown = true;
+    globeMouseX = e.clientX;
+    globeMouseY = e.clientY;
+    globeAutoRotate = false;
+    canvas.style.cursor = 'grabbing';
+  });
+  canvas.addEventListener('mousemove', (e)=>{
+    if(!globeMouseDown) return;
+    const dx = e.clientX - globeMouseX;
+    const dy = e.clientY - globeMouseY;
+    globeMesh.rotation.y += dx * 0.005;
+    globeMesh.rotation.x += dy * 0.005;
+    globeMouseX = e.clientX;
+    globeMouseY = e.clientY;
+  });
+  canvas.addEventListener('mouseup', ()=>{
+    globeMouseDown = false;
+    canvas.style.cursor = 'grab';
+  });
+  canvas.addEventListener('mouseleave', ()=>{
+    globeMouseDown = false;
+  });
+  
+  // Touch controls
+  let touchX = 0, touchY = 0;
+  canvas.addEventListener('touchstart', (e)=>{
+    if(e.touches.length===1){
+      touchX = e.touches[0].clientX;
+      touchY = e.touches[0].clientY;
+      globeAutoRotate = false;
+    }
+  });
+  canvas.addEventListener('touchmove', (e)=>{
+    if(e.touches.length===1){
+      const dx = e.touches[0].clientX - touchX;
+      const dy = e.touches[0].clientY - touchY;
+      globeMesh.rotation.y += dx * 0.005;
+      globeMesh.rotation.x += dy * 0.005;
+      touchX = e.touches[0].clientX;
+      touchY = e.touches[0].clientY;
+      e.preventDefault();
+    }
+  }, {passive: false});
+  
+  // Click on points
+  const raycaster = new THREE.Raycaster();
+  const mouse = new THREE.Vector2();
+  canvas.addEventListener('click', (e)=>{
+    if(Math.abs(e.clientX - globeMouseX) > 5) return; // skip if dragged
+    const rect = canvas.getBoundingClientRect();
+    mouse.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
+    mouse.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
+    raycaster.setFromCamera(mouse, globeCamera);
+    const intersects = raycaster.intersectObjects(globePoints.map(p=>p.mesh));
+    if(intersects.length > 0){
+      const hit = globePoints.find(p => p.mesh === intersects[0].object);
+      if(hit) showGlobeEventDetail(hit.region);
+    }
+  });
+  
+  // Hide loader
+  const loader = document.getElementById('globe-loader');
+  if(loader) loader.style.display = 'none';
+  
+  // Animate
+  function animate(){
+    globeRaf = requestAnimationFrame(animate);
+    if(globeAutoRotate && globeMesh){
+      globeMesh.rotation.y += globeRotationSpeed;
+    }
+    // Pulse the points
+    globePoints.forEach(p=>{
+      if(p.mesh.material.opacity !== undefined){
+        p.pulse = (p.pulse || 0) + 0.05;
+        p.mesh.material.opacity = 0.6 + Math.sin(p.pulse) * 0.4;
+      }
+    });
+    globeRenderer.render(globeScene, globeCamera);
+  }
+  animate();
+  
+  // Resize handling
+  window.addEventListener('resize', ()=>{
+    const w2 = container.clientWidth;
+    const h2 = container.clientHeight;
+    if(w2 && h2){
+      globeCamera.aspect = w2/h2;
+      globeCamera.updateProjectionMatrix();
+      globeRenderer.setSize(w2, h2);
+    }
+  });
+  
+  updateGlobePoints();
+}
+
+function updateGlobePoints(){
+  if(!globeMesh) return;
+  
+  // Clear old points
+  globePoints.forEach(p => globeMesh.remove(p.mesh));
+  globePoints = [];
+  
+  // Count events per region from news
+  const counts = {};
+  HOTSPOT_REGIONS.forEach(r => counts[r.key] = 0);
+  
+  (allNewsItems || []).forEach(news => {
+    const text = (news.title + ' ' + news.desc).toLowerCase();
+    HOTSPOT_REGIONS.forEach(r => {
+      if(r.keywords.some(k => text.includes(k))){
+        counts[r.key]++;
+      }
+    });
+  });
+  
+  // Create dots
+  HOTSPOT_REGIONS.forEach(r=>{
+    const count = counts[r.key] || 0;
+    const intensity = Math.min(count / 5, 1); // normalize 0-1
+    const size = 0.04 + intensity * 0.12;
+    
+    const color = count >= 5 ? 0xff3030 : count >= 2 ? 0xff8030 : count >= 1 ? 0xffaa30 : 0x4a90ff;
+    
+    const pos = latLonToVec3(r.lat, r.lon, 2.55);
+    
+    const pointGeo = new THREE.SphereGeometry(size, 16, 16);
+    const pointMat = new THREE.MeshBasicMaterial({color, transparent:true, opacity:0.9});
+    const point = new THREE.Mesh(pointGeo, pointMat);
+    point.position.set(pos.x, pos.y, pos.z);
+    
+    // Ring glow
+    const ringGeo = new THREE.RingGeometry(size*1.5, size*2.5, 32);
+    const ringMat = new THREE.MeshBasicMaterial({color, transparent:true, opacity:0.3, side:THREE.DoubleSide});
+    const ring = new THREE.Mesh(ringGeo, ringMat);
+    ring.position.set(pos.x, pos.y, pos.z);
+    ring.lookAt(0,0,0);
+    
+    globeMesh.add(point);
+    globeMesh.add(ring);
+    
+    globePoints.push({mesh:point, ring, region:r, count, intensity});
+  });
+  
+  renderHotspots(counts);
+}
+
+function renderHotspots(counts){
+  const el = document.getElementById('globe-hotspots');
+  if(!el) return;
+  
+  const sorted = HOTSPOT_REGIONS
+    .map(r => ({...r, count: counts[r.key] || 0}))
+    .sort((a,b) => b.count - a.count)
+    .filter(r => r.count > 0)
+    .slice(0, 8);
+  
+  if(!sorted.length){
+    el.innerHTML = '<div style="font-size:11px;color:rgba(255,255,255,.4);padding:8px;text-align:center;">Keine aktiven Hotspots</div>';
+    return;
+  }
+  
+  el.innerHTML = sorted.map(r => {
+    const color = r.count >= 5 ? '#ff3030' : r.count >= 2 ? '#ff8030' : '#ffaa30';
+    return `<div onclick="showGlobeEventDetail({key:'${r.key}',name:'${r.name}'})" style="display:flex;align-items:center;justify-content:space-between;padding:6px 8px;background:rgba(255,255,255,.03);border-radius:5px;cursor:pointer;border-left:2px solid ${color};">
+      <span style="font-size:11px;color:#fff;">${r.name}</span>
+      <span style="font-size:10px;color:${color};font-weight:700;">${r.count} News</span>
+    </div>`;
+  }).join('');
+}
+
+function showGlobeEventDetail(region){
+  const el = document.getElementById('globe-event-detail');
+  if(!el) return;
+  
+  const impact = TRADING_IMPACTS[region.key] || TRADING_IMPACTS.usa;
+  
+  // Get news for this region
+  const regionData = HOTSPOT_REGIONS.find(r => r.key === region.key);
+  const regionNews = (allNewsItems || []).filter(n => {
+    if(!regionData) return false;
+    const text = (n.title + ' ' + n.desc).toLowerCase();
+    return regionData.keywords.some(k => text.includes(k));
+  }).slice(0, 4);
+  
+  el.innerHTML = `
+    <div style="font-size:18px;font-weight:700;color:#fff;margin-bottom:4px;">${region.name}</div>
+    <div style="font-size:11px;color:rgba(255,255,255,.5);margin-bottom:12px;">🤖 KI Trader-Analyse</div>
+    
+    <div style="background:rgba(124,58,237,.1);border:1px solid rgba(124,58,237,.3);border-radius:8px;padding:10px;margin-bottom:12px;">
+      <div style="font-size:11px;color:#a78bfa;font-weight:700;margin-bottom:4px;">📊 SUMMARY</div>
+      <div style="font-size:12px;color:#fff;line-height:1.5;">${impact.summary}</div>
+    </div>
+    
+    <div style="margin-bottom:10px;">
+      <div style="font-size:10px;color:#22c55e;font-weight:700;letter-spacing:.06em;text-transform:uppercase;margin-bottom:6px;">📈 BULLISH FOR</div>
+      ${impact.bullish.map(item => `<div style="font-size:11px;color:rgba(255,255,255,.85);padding:3px 0;">${item}</div>`).join('')}
+    </div>
+    
+    <div style="margin-bottom:10px;">
+      <div style="font-size:10px;color:#ef4444;font-weight:700;letter-spacing:.06em;text-transform:uppercase;margin-bottom:6px;">📉 BEARISH FOR</div>
+      ${impact.bearish.map(item => `<div style="font-size:11px;color:rgba(255,255,255,.85);padding:3px 0;">${item}</div>`).join('')}
+    </div>
+    
+    <div style="margin-bottom:10px;">
+      <div style="font-size:10px;color:#f59e0b;font-weight:700;letter-spacing:.06em;text-transform:uppercase;margin-bottom:6px;">👁️ WATCH FOR</div>
+      ${impact.watch.map(item => `<div style="font-size:11px;color:rgba(255,255,255,.85);padding:3px 0;">• ${item}</div>`).join('')}
+    </div>
+    
+    ${regionNews.length ? `
+    <div style="margin-top:12px;padding-top:12px;border-top:1px solid rgba(255,255,255,.1);">
+      <div style="font-size:10px;color:rgba(255,255,255,.5);font-weight:700;letter-spacing:.06em;text-transform:uppercase;margin-bottom:6px;">📰 LATEST NEWS</div>
+      ${regionNews.map(n => `<div onclick="window.open('${n.url}','_blank')" style="padding:6px;background:rgba(255,255,255,.03);border-radius:4px;margin-bottom:4px;cursor:pointer;">
+        <div style="font-size:11px;color:#fff;line-height:1.3;">${n.title.substring(0,80)}${n.title.length>80?'...':''}</div>
+        <div style="font-size:9px;color:rgba(255,255,255,.4);margin-top:2px;">${n.source} · ${timeAgo(n.date)}</div>
+      </div>`).join('')}
+    </div>
+    ` : ''}
+  `;
+}
+
+function refreshGlobe(){
+  refreshAllNews().then(()=>{
+    updateGlobePoints();
+  });
+}
+
+function initGlobeIfNeeded(){
+  if(typeof THREE === 'undefined'){
+    setTimeout(initGlobeIfNeeded, 500);
+    return;
+  }
+  if(!globeScene){
+    setTimeout(()=>{
+      initGlobe();
+      // Wait for news, then update points
+      if(allNewsItems.length === 0){
+        setTimeout(()=>updateGlobePoints(), 2000);
+      } else {
+        updateGlobePoints();
+      }
+    }, 100);
+  } else {
+    updateGlobePoints();
+  }
+}
+
+// ══════════ NEWS AGGREGATOR ══════════
+let allNewsItems = [];
+let currentNewsCategory = 'all';
+let newsSearchTerm = '';
+let newsRefreshTimer = null;
+
+async function fetchCryptoNews(){
+  try{
+    // CryptoCompare News API - free, no key, full CORS
+    const res = await fetch('https://min-api.cryptocompare.com/data/v2/news/?lang=EN', {signal: AbortSignal.timeout(8000)});
+    if(!res.ok) return [];
+    const data = await res.json();
+    return (data.Data || []).slice(0,30).map(n=>({
+      source: n.source_info?.name || n.source || 'Crypto',
+      cat: 'crypto',
+      title: n.title || 'Untitled',
+      desc: (n.body || '').substring(0,200),
+      url: n.url || '#',
+      date: n.published_on ? new Date(n.published_on*1000) : new Date(),
+    }));
+  }catch(e){console.warn('CryptoCompare error:',e); return [];}
+}
+
+async function fetchStockNews(){
+  try{
+    // Yahoo Finance trending tickers + their info
+    const res = await fetch('https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=20&page=1&price_change_percentage=24h', {signal: AbortSignal.timeout(8000)});
+    if(!res.ok) return [];
+    const data = await res.json();
+    return data.slice(0,15).map(c=>({
+      source: 'CoinGecko Live',
+      cat: 'crypto',
+      title: `${c.symbol.toUpperCase()} ${c.price_change_percentage_24h > 0 ? '🟢 +' : '🔴 '}${c.price_change_percentage_24h?.toFixed(2)}% • $${c.current_price.toLocaleString()}`,
+      desc: `${c.name} • Mkt Cap: $${(c.market_cap/1e9).toFixed(2)}B • Vol 24h: $${(c.total_volume/1e9).toFixed(2)}B${c.ath_change_percentage ? ' • ATH: ' + c.ath_change_percentage.toFixed(1) + '%' : ''}`,
+      url: `https://www.coingecko.com/en/coins/${c.id}`,
+      date: new Date(Date.now() - Math.random()*3600000),
+    }));
+  }catch(e){console.warn('Markets error:',e); return [];}
+}
+
+async function fetchHackerNews(){
+  try{
+    const ids = await fetch('https://hacker-news.firebaseio.com/v0/topstories.json', {signal: AbortSignal.timeout(8000)}).then(r=>r.json());
+    const items = await Promise.all(ids.slice(0,50).map(id=>
+      fetch(`https://hacker-news.firebaseio.com/v0/item/${id}.json`).then(r=>r.json()).catch(()=>null)
+    ));
+    return items.filter(i=>i && i.title).filter(i=>{
+      const t = i.title.toLowerCase();
+      return t.match(/market|stock|econ|fed|inflat|crypto|bitcoin|finance|trade|war|russ|china|israel|iran|ukrain|tech|ai|chip|nvda|aapl|msft|tesla|nasdaq|sp500|dow|gold|oil|currency|usd|eur|recess|bank/);
+    }).slice(0,20).map(i=>({
+      source: 'HackerNews',
+      cat: i.title.toLowerCase().match(/crypto|bitcoin|btc|eth/) ? 'crypto' :
+           i.title.toLowerCase().match(/war|russ|china|israel|iran|ukrain|gaza/) ? 'wars' :
+           i.title.toLowerCase().match(/fed|inflat|cpi|recess|econ/) ? 'economics' :
+           'markets',
+      title: i.title,
+      desc: i.text ? i.text.replace(/<[^>]+>/g,'').substring(0,200) : `Score: ${i.score} • ${i.descendants||0} comments`,
+      url: i.url || `https://news.ycombinator.com/item?id=${i.id}`,
+      date: new Date(i.time*1000),
+    }));
+  }catch(e){console.warn('HackerNews error:',e); return [];}
+}
+
+async function fetchGDELT(){
+  try{
+    const queries = [
+      {q:'ukraine russia war', cat:'wars'},
+      {q:'israel gaza iran', cat:'wars'},
+      {q:'china taiwan tension', cat:'geopolitics'},
+      {q:'federal reserve inflation', cat:'economics'},
+      {q:'stock market nasdaq', cat:'markets'},
+      {q:'bitcoin ethereum crypto', cat:'crypto'},
+    ];
+    
+    const all = [];
+    for(const {q, cat} of queries){
+      try{
+        const url = `https://api.gdeltproject.org/api/v2/doc/doc?query=${encodeURIComponent(q)}&mode=artlist&maxrecords=10&format=json&sort=datedesc`;
+        const res = await fetch(url, {signal: AbortSignal.timeout(8000)});
+        if(!res.ok) continue;
+        const text = await res.text();
+        if(!text || text.length < 10) continue;
+        let data;
+        try { data = JSON.parse(text); } catch(e) { continue; }
+        if(data.articles){
+          data.articles.slice(0,8).forEach(a=>{
+            all.push({
+              source: a.domain || 'GDELT',
+              cat,
+              title: a.title || 'Untitled',
+              desc: '',
+              url: a.url || '#',
+              date: a.seendate ? new Date(a.seendate.substring(0,4)+'-'+a.seendate.substring(4,6)+'-'+a.seendate.substring(6,8)+'T'+a.seendate.substring(9,11)+':'+a.seendate.substring(11,13)+':00') : new Date(),
+            });
+          });
+        }
+      }catch(e){console.warn('GDELT '+q, e); continue;}
+    }
+    return all;
+  }catch(e){console.warn('GDELT error:',e); return [];}
+}
+
+async function fetchReddit(){
+  // Reddit JSON API - full CORS, no key needed
+  try{
+    const subs = [
+      {name:'wallstreetbets', cat:'markets'},
+      {name:'CryptoCurrency', cat:'crypto'},
+      {name:'worldnews', cat:'geopolitics'},
+      {name:'StockMarket', cat:'markets'},
+      {name:'investing', cat:'markets'},
+    ];
+    const all = [];
+    for(const {name, cat} of subs){
+      try{
+        const res = await fetch(`https://www.reddit.com/r/${name}/hot.json?limit=10`, {signal: AbortSignal.timeout(6000)});
+        if(!res.ok) continue;
+        const data = await res.json();
+        (data.data?.children || []).forEach(item=>{
+          const p = item.data;
+          if(p.stickied) return;
+          all.push({
+            source: 'r/'+name,
+            cat,
+            title: p.title,
+            desc: (p.selftext||'').substring(0,200),
+            url: 'https://reddit.com'+p.permalink,
+            date: new Date(p.created_utc*1000),
+          });
+        });
+      }catch(e){continue;}
+    }
+    return all;
+  }catch(e){console.warn('Reddit error:',e); return [];}
+}
+
+async function refreshAllNews(){
+  const status = document.getElementById('news-status');
+  const updated = document.getElementById('news-updated');
+  const feed = document.getElementById('news-feed');
+  
+  if(status) status.textContent = '⟳ Lädt...';
+  if(feed && !allNewsItems.length) feed.innerHTML = '<div style="padding:30px;text-align:center;color:var(--text3);font-size:13px;">📡 Lade News aus mehreren Quellen...</div>';
+  
+  console.log('[News] Starting fetch from 5 sources...');
+  
+  const results = await Promise.allSettled([
+    fetchCryptoNews(),
+    fetchStockNews(),
+    fetchHackerNews(),
+    fetchGDELT(),
+    fetchReddit(),
+  ]);
+  
+  results.forEach((r, i) => {
+    const names = ['CryptoCompare','CoinGecko','HackerNews','GDELT','Reddit'];
+    if(r.status === 'fulfilled'){
+      console.log(`[News] ${names[i]}: ${r.value.length} items`);
+    } else {
+      console.warn(`[News] ${names[i]} FAILED:`, r.reason);
+    }
+  });
+  
+  allNewsItems = results
+    .filter(r => r.status === 'fulfilled')
+    .flatMap(r => r.value || [])
+    .filter(n => n && n.title)
+    .sort((a, b) => b.date - a.date);
+  
+  console.log(`[News] Total loaded: ${allNewsItems.length}`);
+  
+  if(allNewsItems.length === 0){
+    // Show error in UI
+    if(feed) feed.innerHTML = `<div style="padding:30px;text-align:center;color:var(--text3);font-size:13px;">
+      ⚠️ News konnten nicht geladen werden.<br>
+      <small>Browser blockiert eventuell die externen APIs.<br>
+      Schau in der Browser-Console (F12) für Details.</small><br><br>
+      <button onclick="refreshAllNews()" class="bn">🔄 Erneut versuchen</button>
+    </div>`;
+    if(status) status.textContent = '❌ Fehler';
+    return;
+  }
+  
+  if(status) status.textContent = '● Live';
+  if(updated) updated.textContent = `${allNewsItems.length} News · ${new Date().toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit'})}`;
+  
+  renderNewsFeed();
+  renderConflictTracker();
+  if(globeMesh) updateGlobePoints();
+}
+
+function renderNewsFeed(){
+  const el = document.getElementById('news-feed');
+  if(!el) return;
+  
+  let filtered = allNewsItems;
+  if(currentNewsCategory !== 'all'){
+    filtered = filtered.filter(n => n.cat === currentNewsCategory);
+  }
+  if(newsSearchTerm){
+    const term = newsSearchTerm.toLowerCase();
+    filtered = filtered.filter(n => 
+      n.title.toLowerCase().includes(term) || 
+      n.desc.toLowerCase().includes(term) || 
+      n.source.toLowerCase().includes(term)
+    );
+  }
+  
+  if(!filtered.length){
+    el.innerHTML = `<div style="padding:30px;text-align:center;color:var(--text3);font-size:13px;">${allNewsItems.length===0?'Lade News...':'Keine News gefunden für diese Kategorie.'}</div>`;
+    return;
+  }
+  
+  // Group consecutive items by category for visual flow
+  const catTags = {markets:{tag:'tag-mkt',label:'MARKETS'},crypto:{tag:'tag-cry',label:'CRYPTO'},geopolitics:{tag:'tag-geo',label:'GEO'},wars:{tag:'tag-war',label:'WAR'},economics:{tag:'tag-eco',label:'ECON'}};
+  
+  el.innerHTML = filtered.slice(0, 100).map(n => {
+    const ago = timeAgo(n.date);
+    const ct = catTags[n.cat] || {tag:'',label:''};
+    return `<div class="news-item" onclick="window.open('${n.url}','_blank')">
+      <div style="display:flex;align-items:center;flex-wrap:wrap;">
+        <span class="news-source">${n.source}</span>
+        <span class="news-time">${ago}</span>
+        ${ct.label?`<span class="news-tag ${ct.tag}">${ct.label}</span>`:''}
+      </div>
+      <div class="news-title">${n.title}</div>
+      ${n.desc?`<div class="news-desc">${n.desc.substring(0, 180)}${n.desc.length>180?'...':''}</div>`:''}
+    </div>`;
+  }).join('');
+}
+
+function timeAgo(date){
+  const seconds = Math.floor((new Date() - date) / 1000);
+  if(seconds < 60) return 'just now';
+  const minutes = Math.floor(seconds / 60);
+  if(minutes < 60) return minutes + 'm ago';
+  const hours = Math.floor(minutes / 60);
+  if(hours < 24) return hours + 'h ago';
+  const days = Math.floor(hours / 24);
+  if(days < 7) return days + 'd ago';
+  return date.toLocaleDateString();
+}
+
+function setNewsCategory(cat, btn){
+  currentNewsCategory = cat;
+  document.querySelectorAll('.news-tab').forEach(b => b.classList.remove('active'));
+  if(btn) btn.classList.add('active');
+  renderNewsFeed();
+}
+
+function filterNews(term){
+  newsSearchTerm = term;
+  renderNewsFeed();
+}
+
+function renderConflictTracker(){
+  const el = document.getElementById('conflict-tracker');
+  if(!el) return;
+  // Get war/geopolitics news, look for conflict keywords
+  const conflictKeywords = ['ukraine','russia','israel','gaza','hamas','war','attack','strike','killed','missile','drone','conflict','military','troops','iran','china','taiwan','north korea','sudan','yemen','syria'];
+  const conflicts = allNewsItems.filter(n => {
+    const text = (n.title + ' ' + n.desc).toLowerCase();
+    return n.cat === 'wars' || n.cat === 'geopolitics' || conflictKeywords.some(k => text.includes(k));
+  }).slice(0, 20);
+  
+  if(!conflicts.length){
+    el.innerHTML = '<div style="padding:30px;text-align:center;color:var(--text3);font-size:13px;">Lädt Conflict Data...</div>';
+    return;
+  }
+  
+  // Detect regions
+  const regionMap = {
+    'ukraine': '🇺🇦 Ukraine', 'russia': '🇷🇺 Russia',
+    'israel': '🇮🇱 Israel', 'gaza': '🇵🇸 Gaza', 'hamas': '🇵🇸 Gaza',
+    'iran': '🇮🇷 Iran', 'syria': '🇸🇾 Syria', 'yemen': '🇾🇪 Yemen',
+    'china': '🇨🇳 China', 'taiwan': '🇹🇼 Taiwan',
+    'north korea': '🇰🇵 North Korea', 'sudan': '🇸🇩 Sudan',
+  };
+  
+  el.innerHTML = conflicts.map(n => {
+    const text = (n.title + ' ' + n.desc).toLowerCase();
+    let region = '🌍 Global';
+    for(const k in regionMap){
+      if(text.includes(k)){ region = regionMap[k]; break; }
+    }
+    return `<div style="padding:10px 12px;border-bottom:1px solid var(--border);cursor:pointer;" onclick="window.open('${n.url}','_blank')" onmouseenter="this.style.background='var(--bg2)'" onmouseleave="this.style.background=''">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;">
+        <span style="font-size:11px;font-weight:700;color:var(--red);">${region}</span>
+        <span style="font-size:10px;color:var(--text3);">${timeAgo(n.date)}</span>
+      </div>
+      <div style="font-size:12px;font-weight:600;line-height:1.3;">${n.title}</div>
+    </div>`;
+  }).join('');
+}
+
+// Auto-refresh every 5 minutes when news page is active
+function startNewsAutoRefresh(){
+  if(newsRefreshTimer) clearInterval(newsRefreshTimer);
+  newsRefreshTimer = setInterval(()=>{
+    const isActive = document.getElementById('page-news')?.classList.contains('active');
+    if(isActive) refreshAllNews();
+  }, 5 * 60 * 1000); // 5 minutes
+}
+
+// Load news when news page is visited
+function initNewsIfNeeded(){
+  if(!allNewsItems.length){
+    refreshAllNews().then(()=>initGlobeIfNeeded());
+    startNewsAutoRefresh();
+  } else {
+    renderNewsFeed();
+    renderConflictTracker();
+    initGlobeIfNeeded();
+  }
+}
 
 // ══════════ I18N / TRANSLATIONS ══════════
 const TRANSLATIONS = {
@@ -2085,6 +3132,7 @@ function navigate(page,btn){
 
 function renderPage(p){
   if(p==='home')renderHome();
+  if(p==='news')initNewsIfNeeded();
   if(p==='journal'){renderChecklist();renderJTradeView();renderAccounts();renderPnLChart();}
   if(p==='reviews'){renderRevView();renderRevTradeView();renderSetupsSidebar();}
   if(p==='knowledge'){renderKnowledgeGallery();renderSetupsGallery();}
