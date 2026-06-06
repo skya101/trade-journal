@@ -130,6 +130,17 @@ body{background:var(--bg3);color:var(--text);font-size:14px;height:100vh;overflo
 .news-tab{background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:5px 10px;font-size:12px;cursor:pointer;color:var(--text2);font-family:inherit;transition:all .13s;}
 .news-tab:hover{background:var(--bg3);}
 .news-tab.active{background:var(--accent);color:#fff;border-color:var(--accent);font-weight:600;}
+
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.7}}
+@keyframes slideIn{from{transform:translateX(400px);opacity:0}to{transform:translateX(0);opacity:1}}
+@keyframes slideOut{from{transform:translateX(0);opacity:1}to{transform:translateX(400px);opacity:0}}
+.toast-notif{position:fixed;top:20px;right:20px;z-index:9999;background:#fff;border-radius:12px;box-shadow:0 10px 40px rgba(0,0,0,.2);padding:14px 16px;max-width:360px;border-left:4px solid var(--accent);animation:slideIn .3s ease;}
+body.dark .toast-notif{background:#1e1e1e;}
+.toast-close{position:absolute;top:8px;right:10px;cursor:pointer;color:var(--text3);font-size:18px;background:none;border:none;}
+.notif-badge{position:absolute;top:-4px;right:-4px;background:var(--red);color:#fff;font-size:10px;font-weight:700;border-radius:10px;padding:1px 6px;min-width:18px;text-align:center;}
+.news-item.breaking{border-left:3px solid #ef4444;background:rgba(239,68,68,.04);}
+.news-item.new-flash{animation:flashHighlight 2s ease;}
+@keyframes flashHighlight{0%{background:rgba(124,58,237,.15)}100%{background:transparent}}
 .news-item{padding:12px 14px;border-bottom:1px solid var(--border);transition:background .13s;cursor:pointer;}
 .news-item:hover{background:var(--bg2);}
 .news-item:last-child{border-bottom:none;}
@@ -968,56 +979,81 @@ textarea.fi{resize:vertical;min-height:70px;}
 </div>
 
 <!-- NEWS -->
-<div class="page" id="page-news"><div class="ptit">News</div>
+<div class="page" id="page-news"><div class="ptit">News & Intelligence</div>
   
-  <!-- 3D GEOPOLITICS GLOBE -->
-  <div class="card" style="overflow:hidden;background:linear-gradient(180deg, #0a0e1a 0%, #0f172a 100%);">
-    <div style="padding:14px 16px;border-bottom:1px solid rgba(255,255,255,.1);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;">
-      <div style="display:flex;align-items:center;gap:8px;font-size:14px;font-weight:700;color:#fff;">
-        🌍 Live Geopolitik Globe
-        <span id="globe-status" style="font-size:10px;color:#22c55e;background:rgba(34,197,94,.15);padding:2px 8px;border-radius:10px;">● Live</span>
+  <!-- BREAKING NEWS BANNER (only shows when breaking news arrives) -->
+  <div id="breaking-banner" style="display:none;background:linear-gradient(90deg,#dc2626,#991b1b);color:#fff;padding:10px 16px;border-radius:10px;margin-bottom:0;font-size:13px;font-weight:600;display:none;align-items:center;gap:10px;animation:pulse 2s infinite;">
+    <span style="background:rgba(255,255,255,.2);padding:3px 8px;border-radius:4px;font-size:10px;font-weight:700;">🚨 BREAKING</span>
+    <span id="breaking-text" style="flex:1;"></span>
+    <button onclick="dismissBreaking()" style="background:none;border:none;color:#fff;cursor:pointer;font-size:18px;padding:0 4px;">×</button>
+  </div>
+  
+  <!-- 3D GEOPOLITICS GLOBE - Premium dark style -->
+  <div class="card" style="overflow:hidden;background:linear-gradient(180deg, #050810 0%, #0a1020 100%);border:1px solid rgba(100,150,255,.15);">
+    <div style="padding:16px 18px;border-bottom:1px solid rgba(255,255,255,.08);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;background:linear-gradient(180deg,rgba(255,255,255,.02),transparent);">
+      <div style="display:flex;align-items:center;gap:10px;">
+        <div style="width:8px;height:8px;border-radius:50%;background:#22c55e;box-shadow:0 0 8px #22c55e;animation:pulse 1.5s infinite;"></div>
+        <div>
+          <div style="font-size:14px;font-weight:700;color:#fff;letter-spacing:.02em;">Geopolitik Command Center</div>
+          <div style="font-size:10px;color:rgba(255,255,255,.4);margin-top:2px;letter-spacing:.05em;">REAL-TIME GLOBAL EVENTS</div>
+        </div>
       </div>
-      <div style="display:flex;align-items:center;gap:8px;">
-        <span style="font-size:11px;color:rgba(255,255,255,.5);">🔴 Größere Punkte = mehr Aktivität</span>
-        <button onclick="refreshGlobe()" style="background:rgba(124,58,237,.2);color:#a78bfa;border:1px solid rgba(124,58,237,.3);border-radius:6px;padding:5px 10px;font-size:12px;cursor:pointer;display:flex;align-items:center;gap:5px;">
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 4v6h-6"/><path d="M1 20v-6h6"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg>
+      <div style="display:flex;align-items:center;gap:10px;">
+        <div id="globe-status" style="font-size:10px;color:#22c55e;background:rgba(34,197,94,.1);padding:4px 10px;border-radius:20px;border:1px solid rgba(34,197,94,.2);">● LIVE</div>
+        <div id="auto-refresh-countdown" style="font-size:10px;color:rgba(255,255,255,.5);background:rgba(255,255,255,.05);padding:4px 10px;border-radius:20px;">Auto-refresh in <span id="refresh-timer">3:00</span></div>
+        <button onclick="refreshGlobe()" style="background:linear-gradient(135deg,rgba(124,58,237,.3),rgba(99,102,241,.3));color:#a78bfa;border:1px solid rgba(124,58,237,.4);border-radius:6px;padding:6px 14px;font-size:12px;cursor:pointer;display:flex;align-items:center;gap:6px;font-weight:600;">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 4v6h-6"/><path d="M1 20v-6h6"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg>
           Refresh
         </button>
       </div>
     </div>
     
-    <div style="display:grid;grid-template-columns:1fr 320px;min-height:480px;" id="globe-layout">
+    <div style="display:grid;grid-template-columns:1fr 340px;min-height:520px;" id="globe-layout">
       <!-- 3D Canvas -->
-      <div id="globe-container" style="position:relative;background:radial-gradient(ellipse at center, #1e293b 0%, #0a0e1a 100%);overflow:hidden;">
+      <div id="globe-container" style="position:relative;background:radial-gradient(ellipse at center, #0a1428 0%, #050810 100%);overflow:hidden;">
         <canvas id="globe-canvas" style="display:block;width:100%;height:100%;cursor:grab;"></canvas>
-        <div id="globe-loader" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,.5);font-size:13px;">🌍 Lade Globe...</div>
+        <div id="globe-loader" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,.4);font-size:13px;">🌍 Initialisiere Globe...</div>
+        <div style="position:absolute;bottom:10px;left:14px;font-size:10px;color:rgba(255,255,255,.4);background:rgba(0,0,0,.4);padding:4px 8px;border-radius:4px;backdrop-filter:blur(4px);">
+          💡 Klick auf rote Punkte für Trading-Impact-Analyse
+        </div>
+        <div style="position:absolute;bottom:10px;right:14px;font-size:10px;color:rgba(255,255,255,.4);background:rgba(0,0,0,.4);padding:4px 8px;border-radius:4px;backdrop-filter:blur(4px);">
+          Doppelklick = Auto-Rotation an/aus
+        </div>
       </div>
       
       <!-- Event Detail / AI Analysis -->
-      <div id="globe-side" style="background:rgba(15,23,42,.8);border-left:1px solid rgba(255,255,255,.1);padding:14px;overflow-y:auto;max-height:480px;">
+      <div id="globe-side" style="background:rgba(10,15,25,.6);backdrop-filter:blur(10px);border-left:1px solid rgba(255,255,255,.08);padding:18px;overflow-y:auto;max-height:520px;">
         <div id="globe-event-detail">
-          <div style="text-align:center;color:rgba(255,255,255,.4);font-size:12px;padding:40px 10px;">
-            👆 Klick auf einen Punkt im Globus für<br>KI-Analyse der Marktauswirkungen
+          <div style="text-align:center;padding:30px 10px;">
+            <div style="font-size:32px;margin-bottom:10px;">🎯</div>
+            <div style="color:rgba(255,255,255,.7);font-size:13px;font-weight:600;margin-bottom:6px;">Klick einen Punkt</div>
+            <div style="color:rgba(255,255,255,.4);font-size:11px;line-height:1.5;">Erhalte KI-Analyse welche Märkte<br>betroffen sein könnten</div>
           </div>
         </div>
-        <div style="margin-top:16px;padding-top:16px;border-top:1px solid rgba(255,255,255,.1);">
-          <div style="font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:rgba(255,255,255,.5);margin-bottom:8px;">🔥 Hotspots aktuell</div>
+        <div style="margin-top:16px;padding-top:16px;border-top:1px solid rgba(255,255,255,.08);">
+          <div style="font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.5);margin-bottom:10px;display:flex;align-items:center;gap:6px;">
+            🔥 LIVE HOTSPOTS
+          </div>
           <div id="globe-hotspots" style="display:flex;flex-direction:column;gap:6px;"></div>
         </div>
       </div>
     </div>
   </div>
   
-  <!-- LIVE NEWS AGGREGATOR -->
-  <div class="card" style="overflow:hidden;">
-    <div style="padding:14px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;">
-      <div style="display:flex;align-items:center;gap:8px;font-size:14px;font-weight:700;">
-        🌍 Live News Aggregator
-        <span id="news-status" style="font-size:10px;color:var(--green);background:rgba(34,197,94,.1);padding:2px 8px;border-radius:10px;">● Live</span>
+  <!-- LIVE NEWS AGGREGATOR - Professional Terminal Style -->
+  <div class="card" style="overflow:hidden;border:1px solid var(--border);">
+    <div style="padding:14px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;background:linear-gradient(180deg,var(--bg2),transparent);">
+      <div style="display:flex;align-items:center;gap:10px;">
+        <div style="width:8px;height:8px;border-radius:50%;background:var(--accent);box-shadow:0 0 6px var(--accent);"></div>
+        <div>
+          <div style="font-size:14px;font-weight:700;letter-spacing:.02em;">News Terminal</div>
+          <div style="font-size:10px;color:var(--text3);margin-top:2px;letter-spacing:.05em;">MULTI-SOURCE AGGREGATOR</div>
+        </div>
       </div>
-      <div style="display:flex;align-items:center;gap:8px;">
-        <span id="news-updated" style="font-size:11px;color:var(--text3);">–</span>
-        <button onclick="refreshAllNews()" class="bn" style="padding:5px 10px;font-size:12px;display:flex;align-items:center;gap:5px;">
+      <div style="display:flex;align-items:center;gap:10px;">
+        <div id="news-updated" style="font-size:11px;color:var(--text3);padding:4px 10px;background:var(--bg2);border-radius:20px;">–</div>
+        <div id="news-status" style="font-size:10px;color:var(--green);background:rgba(34,197,94,.1);padding:4px 10px;border-radius:20px;border:1px solid rgba(34,197,94,.2);">● Live</div>
+        <button onclick="refreshAllNews()" class="bn" style="padding:6px 14px;font-size:12px;display:flex;align-items:center;gap:6px;font-weight:600;">
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 4v6h-6"/><path d="M1 20v-6h6"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg>
           Refresh
         </button>
@@ -1025,22 +1061,26 @@ textarea.fi{resize:vertical;min-height:70px;}
     </div>
     
     <!-- Category Tabs -->
-    <div style="padding:10px 16px;border-bottom:1px solid var(--border);background:var(--bg2);display:flex;gap:6px;flex-wrap:wrap;" id="news-tabs">
-      <button class="news-tab active" data-cat="all" onclick="setNewsCategory('all',this)">⚡ Alle News</button>
-      <button class="news-tab" data-cat="markets" onclick="setNewsCategory('markets',this)">📊 Markets</button>
-      <button class="news-tab" data-cat="crypto" onclick="setNewsCategory('crypto',this)">₿ Crypto</button>
-      <button class="news-tab" data-cat="geopolitics" onclick="setNewsCategory('geopolitics',this)">🌐 Geopolitics</button>
-      <button class="news-tab" data-cat="wars" onclick="setNewsCategory('wars',this)">⚔️ Wars & Conflicts</button>
-      <button class="news-tab" data-cat="economics" onclick="setNewsCategory('economics',this)">💼 Economics</button>
+    <div style="padding:12px 18px;border-bottom:1px solid var(--border);background:var(--bg2);display:flex;gap:6px;flex-wrap:wrap;" id="news-tabs">
+      <button class="news-tab active" data-cat="all" onclick="setNewsCategory('all',this)">⚡ All <span id="cnt-all" style="opacity:.5;">0</span></button>
+      <button class="news-tab" data-cat="markets" onclick="setNewsCategory('markets',this)">📊 Markets <span id="cnt-markets" style="opacity:.5;">0</span></button>
+      <button class="news-tab" data-cat="crypto" onclick="setNewsCategory('crypto',this)">₿ Crypto <span id="cnt-crypto" style="opacity:.5;">0</span></button>
+      <button class="news-tab" data-cat="geopolitics" onclick="setNewsCategory('geopolitics',this)">🌐 Geopolitics <span id="cnt-geopolitics" style="opacity:.5;">0</span></button>
+      <button class="news-tab" data-cat="wars" onclick="setNewsCategory('wars',this)">⚔️ Conflicts <span id="cnt-wars" style="opacity:.5;">0</span></button>
+      <button class="news-tab" data-cat="economics" onclick="setNewsCategory('economics',this)">💼 Economics <span id="cnt-economics" style="opacity:.5;">0</span></button>
     </div>
     
-    <!-- Search -->
-    <div style="padding:10px 16px;border-bottom:1px solid var(--border);">
-      <input type="text" id="news-search" placeholder="🔍 News durchsuchen..." style="width:100%;padding:8px 12px;border:1px solid var(--border);border-radius:8px;font-size:13px;background:var(--bg2);color:var(--text);outline:none;font-family:inherit;" oninput="filterNews(this.value)">
+    <!-- Search + Notification Toggle -->
+    <div style="padding:12px 18px;border-bottom:1px solid var(--border);display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+      <input type="text" id="news-search" placeholder="🔍 Suchen nach Ticker, Land, Event..." style="flex:1;min-width:200px;padding:9px 14px;border:1px solid var(--border);border-radius:8px;font-size:13px;background:var(--bg2);color:var(--text);outline:none;font-family:inherit;" oninput="filterNews(this.value)">
+      <button id="notif-toggle" onclick="toggleNotifications()" style="padding:8px 14px;border:1px solid var(--border);border-radius:8px;background:var(--bg2);color:var(--text2);font-size:12px;cursor:pointer;display:flex;align-items:center;gap:6px;font-family:inherit;" title="Benachrichtigungen aktivieren">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
+        <span id="notif-label">Notifications</span>
+      </button>
     </div>
     
     <!-- News Feed -->
-    <div id="news-feed" style="max-height:600px;overflow-y:auto;padding:8px;">
+    <div id="news-feed" style="max-height:700px;overflow-y:auto;">
       <div style="padding:30px;text-align:center;color:var(--text3);font-size:13px;">📡 Lade News...</div>
     </div>
   </div>
@@ -2244,66 +2284,103 @@ function initGlobe(){
   const stars = new THREE.Points(starsGeo, starsMat);
   globeScene.add(stars);
   
-  // Mouse controls
-  canvas.addEventListener('mousedown', (e)=>{
+  // Mouse + Touch unified controls
+  let dragStartX = 0, dragStartY = 0, totalDragDistance = 0;
+  let isDragging = false;
+  
+  function getPointerPos(e){
+    if(e.touches && e.touches[0]) return {x: e.touches[0].clientX, y: e.touches[0].clientY};
+    return {x: e.clientX, y: e.clientY};
+  }
+  
+  function onPointerDown(e){
+    const pos = getPointerPos(e);
     globeMouseDown = true;
-    globeMouseX = e.clientX;
-    globeMouseY = e.clientY;
+    isDragging = false;
+    totalDragDistance = 0;
+    globeMouseX = pos.x;
+    globeMouseY = pos.y;
+    dragStartX = pos.x;
+    dragStartY = pos.y;
     globeAutoRotate = false;
     canvas.style.cursor = 'grabbing';
-  });
-  canvas.addEventListener('mousemove', (e)=>{
+  }
+  
+  function onPointerMove(e){
     if(!globeMouseDown) return;
-    const dx = e.clientX - globeMouseX;
-    const dy = e.clientY - globeMouseY;
-    globeMesh.rotation.y += dx * 0.005;
-    globeMesh.rotation.x += dy * 0.005;
-    globeMouseX = e.clientX;
-    globeMouseY = e.clientY;
-  });
-  canvas.addEventListener('mouseup', ()=>{
+    const pos = getPointerPos(e);
+    const dx = pos.x - globeMouseX;
+    const dy = pos.y - globeMouseY;
+    totalDragDistance += Math.abs(dx) + Math.abs(dy);
+    if(totalDragDistance > 8) isDragging = true;
+    
+    if(isDragging){
+      globeMesh.rotation.y += dx * 0.006;
+      // Limit X rotation to prevent flip
+      const newX = globeMesh.rotation.x + dy * 0.006;
+      globeMesh.rotation.x = Math.max(-1.2, Math.min(1.2, newX));
+    }
+    globeMouseX = pos.x;
+    globeMouseY = pos.y;
+    if(e.touches) e.preventDefault();
+  }
+  
+  function onPointerUp(e){
+    const wasClick = !isDragging && globeMouseDown;
     globeMouseDown = false;
     canvas.style.cursor = 'grab';
-  });
-  canvas.addEventListener('mouseleave', ()=>{
-    globeMouseDown = false;
-  });
-  
-  // Touch controls
-  let touchX = 0, touchY = 0;
-  canvas.addEventListener('touchstart', (e)=>{
-    if(e.touches.length===1){
-      touchX = e.touches[0].clientX;
-      touchY = e.touches[0].clientY;
-      globeAutoRotate = false;
+    
+    // Handle click on points
+    if(wasClick){
+      const rect = canvas.getBoundingClientRect();
+      const clickX = e.changedTouches ? e.changedTouches[0].clientX : e.clientX;
+      const clickY = e.changedTouches ? e.changedTouches[0].clientY : e.clientY;
+      mouse.x = ((clickX - rect.left) / rect.width) * 2 - 1;
+      mouse.y = -((clickY - rect.top) / rect.height) * 2 + 1;
+      raycaster.setFromCamera(mouse, globeCamera);
+      
+      // Check both points AND hitboxes (bigger for easier clicking)
+      const targets = [];
+      globePoints.forEach(p => {
+        if(p.hitbox) targets.push(p.hitbox);
+        if(p.mesh) targets.push(p.mesh);
+      });
+      
+      const intersects = raycaster.intersectObjects(targets, false);
+      if(intersects.length > 0){
+        const hitObj = intersects[0].object;
+        const region = hitObj.userData?.region;
+        const hit = region ? globePoints.find(p => p.region.key === region.key) : null;
+        if(hit){
+          showGlobeEventDetail(hit.region);
+          // Visual feedback - pulse the point
+          if(hit.mesh && hit.mesh.material){
+            hit.mesh.scale.set(1.8, 1.8, 1.8);
+            setTimeout(()=>{
+              if(hit.mesh) hit.mesh.scale.set(1,1,1);
+            }, 400);
+          }
+        }
+      }
     }
-  });
-  canvas.addEventListener('touchmove', (e)=>{
-    if(e.touches.length===1){
-      const dx = e.touches[0].clientX - touchX;
-      const dy = e.touches[0].clientY - touchY;
-      globeMesh.rotation.y += dx * 0.005;
-      globeMesh.rotation.x += dy * 0.005;
-      touchX = e.touches[0].clientX;
-      touchY = e.touches[0].clientY;
-      e.preventDefault();
-    }
-  }, {passive: false});
+  }
   
-  // Click on points
+  // Raycaster setup
   const raycaster = new THREE.Raycaster();
+  raycaster.params.Points = {threshold: 0.3};
   const mouse = new THREE.Vector2();
-  canvas.addEventListener('click', (e)=>{
-    if(Math.abs(e.clientX - globeMouseX) > 5) return; // skip if dragged
-    const rect = canvas.getBoundingClientRect();
-    mouse.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
-    mouse.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
-    raycaster.setFromCamera(mouse, globeCamera);
-    const intersects = raycaster.intersectObjects(globePoints.map(p=>p.mesh));
-    if(intersects.length > 0){
-      const hit = globePoints.find(p => p.mesh === intersects[0].object);
-      if(hit) showGlobeEventDetail(hit.region);
-    }
+  
+  canvas.addEventListener('mousedown', onPointerDown);
+  canvas.addEventListener('mousemove', onPointerMove);
+  canvas.addEventListener('mouseup', onPointerUp);
+  canvas.addEventListener('mouseleave', ()=>{ globeMouseDown = false; });
+  canvas.addEventListener('touchstart', onPointerDown, {passive: false});
+  canvas.addEventListener('touchmove', onPointerMove, {passive: false});
+  canvas.addEventListener('touchend', onPointerUp);
+  
+  // Resume auto-rotate button (double-click)
+  canvas.addEventListener('dblclick', ()=>{
+    globeAutoRotate = !globeAutoRotate;
   });
   
   // Hide loader
@@ -2344,8 +2421,12 @@ function initGlobe(){
 function updateGlobePoints(){
   if(!globeMesh) return;
   
-  // Clear old points
-  globePoints.forEach(p => globeMesh.remove(p.mesh));
+  // Clear old points + rings + hitboxes
+  globePoints.forEach(p => {
+    if(p.mesh) globeMesh.remove(p.mesh);
+    if(p.ring) globeMesh.remove(p.ring);
+    if(p.hitbox) globeMesh.remove(p.hitbox);
+  });
   globePoints = [];
   
   // Count events per region from news
@@ -2365,28 +2446,37 @@ function updateGlobePoints(){
   HOTSPOT_REGIONS.forEach(r=>{
     const count = counts[r.key] || 0;
     const intensity = Math.min(count / 5, 1); // normalize 0-1
-    const size = 0.04 + intensity * 0.12;
+    const size = 0.08 + intensity * 0.15; // bigger base size for easier clicking
     
     const color = count >= 5 ? 0xff3030 : count >= 2 ? 0xff8030 : count >= 1 ? 0xffaa30 : 0x4a90ff;
     
     const pos = latLonToVec3(r.lat, r.lon, 2.55);
     
     const pointGeo = new THREE.SphereGeometry(size, 16, 16);
-    const pointMat = new THREE.MeshBasicMaterial({color, transparent:true, opacity:0.9});
+    const pointMat = new THREE.MeshBasicMaterial({color, transparent:true, opacity:0.95});
     const point = new THREE.Mesh(pointGeo, pointMat);
     point.position.set(pos.x, pos.y, pos.z);
+    point.userData.region = r;
+    
+    // Bigger invisible hitbox for easier clicking
+    const hitGeo = new THREE.SphereGeometry(size * 2.5, 8, 8);
+    const hitMat = new THREE.MeshBasicMaterial({visible: false});
+    const hitbox = new THREE.Mesh(hitGeo, hitMat);
+    hitbox.position.set(pos.x, pos.y, pos.z);
+    hitbox.userData.region = r;
     
     // Ring glow
     const ringGeo = new THREE.RingGeometry(size*1.5, size*2.5, 32);
-    const ringMat = new THREE.MeshBasicMaterial({color, transparent:true, opacity:0.3, side:THREE.DoubleSide});
+    const ringMat = new THREE.MeshBasicMaterial({color, transparent:true, opacity:0.4, side:THREE.DoubleSide});
     const ring = new THREE.Mesh(ringGeo, ringMat);
     ring.position.set(pos.x, pos.y, pos.z);
     ring.lookAt(0,0,0);
     
     globeMesh.add(point);
     globeMesh.add(ring);
+    globeMesh.add(hitbox);
     
-    globePoints.push({mesh:point, ring, region:r, count, intensity});
+    globePoints.push({mesh:point, ring, hitbox, region:r, count, intensity});
   });
   
   renderHotspots(counts);
@@ -2490,6 +2580,171 @@ function initGlobeIfNeeded(){
   } else {
     updateGlobePoints();
   }
+}
+
+// Background news polling - even when not on news page
+let backgroundNewsTimer = null;
+function startBackgroundNews(){
+  if(backgroundNewsTimer) return; // already running
+  // Initial fetch after 10 seconds
+  setTimeout(()=>refreshAllNews().catch(()=>{}), 10000);
+  // Then every 5 minutes
+  backgroundNewsTimer = setInterval(()=>{
+    refreshAllNews().catch(()=>{});
+  }, 5 * 60 * 1000);
+}
+
+// Start as soon as app loads
+setTimeout(startBackgroundNews, 3000);
+
+// ══════════ NOTIFICATIONS ══════════
+let notificationsEnabled = localStorage.getItem('tj_notifications') === 'yes';
+let lastNewsIds = new Set();
+let knownItemKeys = new Set();
+
+function toggleNotifications(){
+  if(notificationsEnabled){
+    notificationsEnabled = false;
+    localStorage.setItem('tj_notifications','no');
+    updateNotifButton();
+    showToast('🔕 Benachrichtigungen aus','info');
+    return;
+  }
+  // Request permission
+  if('Notification' in window){
+    Notification.requestPermission().then(p=>{
+      if(p === 'granted'){
+        notificationsEnabled = true;
+        localStorage.setItem('tj_notifications','yes');
+        updateNotifButton();
+        showToast('🔔 Benachrichtigungen aktiviert! Du wirst über wichtige Events informiert.','success');
+      } else {
+        showToast('❌ Benachrichtigungen nicht erlaubt. Aktiviere sie in den Browser-Einstellungen.','error');
+      }
+    });
+  } else {
+    showToast('Browser unterstützt keine Notifications','error');
+  }
+}
+
+function updateNotifButton(){
+  const lbl = document.getElementById('notif-label');
+  const btn = document.getElementById('notif-toggle');
+  if(!lbl || !btn) return;
+  if(notificationsEnabled){
+    lbl.textContent = 'Notifications: AN';
+    btn.style.background = 'rgba(34,197,94,.1)';
+    btn.style.borderColor = 'rgba(34,197,94,.3)';
+    btn.style.color = '#22c55e';
+  } else {
+    lbl.textContent = 'Notifications: AUS';
+    btn.style.background = 'var(--bg2)';
+    btn.style.borderColor = 'var(--border)';
+    btn.style.color = 'var(--text2)';
+  }
+}
+
+function showToast(message, type='info', url=null){
+  const toast = document.createElement('div');
+  toast.className = 'toast-notif';
+  const color = type==='error'?'#ef4444':type==='success'?'#22c55e':type==='breaking'?'#dc2626':'#7c3aed';
+  toast.style.borderLeftColor = color;
+  toast.innerHTML = `
+    <button class="toast-close" onclick="this.parentElement.remove()">×</button>
+    <div style="font-size:13px;font-weight:600;margin-bottom:4px;color:${color};">
+      ${type==='breaking'?'🚨 BREAKING NEWS':type==='error'?'❌ Fehler':type==='success'?'✓ Erfolg':'ℹ️ Info'}
+    </div>
+    <div style="font-size:12px;line-height:1.4;padding-right:14px;">${message}</div>
+    ${url?`<a href="${url}" target="_blank" style="font-size:11px;color:${color};margin-top:6px;display:inline-block;">Mehr lesen →</a>`:''}
+  `;
+  document.body.appendChild(toast);
+  setTimeout(()=>{
+    toast.style.animation = 'slideOut .3s ease';
+    setTimeout(()=>toast.remove(), 300);
+  }, 8000);
+}
+
+function sendBrowserNotification(title, body, url){
+  if(!notificationsEnabled || !('Notification' in window) || Notification.permission !== 'granted') return;
+  try{
+    const n = new Notification(title, {
+      body,
+      icon: 'data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'%237c3aed\' stroke-width=\'2.5\'%3E%3Cpolyline points=\'22 12 18 12 15 21 9 3 6 12 2 12\'/%3E%3C/svg%3E',
+      tag: 'tj-news',
+      requireInteraction: false,
+    });
+    n.onclick = ()=>{
+      window.focus();
+      if(url) window.open(url, '_blank');
+      n.close();
+    };
+    setTimeout(()=>n.close(), 10000);
+  }catch(e){}
+}
+
+function dismissBreaking(){
+  const b = document.getElementById('breaking-banner');
+  if(b) b.style.display = 'none';
+}
+
+// Detect "breaking" news - high-impact keywords
+const BREAKING_KEYWORDS = [
+  'breaking','urgent','war declared','attack','strike','killed','dies','crash',
+  'emergency','crisis','collapse','sanctions','rate cut','rate hike','fomc',
+  'fed announces','ceasefire','invasion','missile','explosion','default'
+];
+
+function detectBreakingNews(items){
+  // Only check items from last 30 minutes
+  const thirtyMinAgo = Date.now() - 30*60*1000;
+  const recentBreaking = items.filter(n=>{
+    if(n.date.getTime() < thirtyMinAgo) return false;
+    const key = n.title.substring(0,80);
+    if(knownItemKeys.has(key)) return false;
+    const text = n.title.toLowerCase();
+    return BREAKING_KEYWORDS.some(k => text.includes(k));
+  });
+  
+  // Mark all current items as known
+  items.forEach(n => knownItemKeys.add(n.title.substring(0,80)));
+  
+  if(recentBreaking.length > 0){
+    const newest = recentBreaking[0];
+    const banner = document.getElementById('breaking-banner');
+    const txt = document.getElementById('breaking-text');
+    if(banner && txt){
+      txt.textContent = newest.title;
+      banner.style.display = 'flex';
+      banner.onclick = ()=>window.open(newest.url, '_blank');
+    }
+    // Browser notification + toast (only first one to avoid spam)
+    showToast(newest.title, 'breaking', newest.url);
+    sendBrowserNotification('🚨 Breaking News', newest.title, newest.url);
+  }
+}
+
+// ══════════ AUTO REFRESH COUNTDOWN ══════════
+let autoRefreshSeconds = 180; // 3 minutes
+let countdownTimer = null;
+
+function startCountdown(){
+  if(countdownTimer) clearInterval(countdownTimer);
+  countdownTimer = setInterval(()=>{
+    autoRefreshSeconds--;
+    const el = document.getElementById('refresh-timer');
+    if(el){
+      const m = Math.floor(autoRefreshSeconds/60);
+      const s = autoRefreshSeconds%60;
+      el.textContent = `${m}:${s.toString().padStart(2,'0')}`;
+    }
+    if(autoRefreshSeconds <= 0){
+      autoRefreshSeconds = 180;
+      const isActive = document.getElementById('page-news')?.classList.contains('active');
+      if(isActive){
+        refreshAllNews();
+      }
+    }
+  }, 1000);
 }
 
 // ══════════ NEWS AGGREGATOR ══════════
@@ -2678,6 +2933,17 @@ async function refreshAllNews(){
   if(status) status.textContent = '● Live';
   if(updated) updated.textContent = `${allNewsItems.length} News · ${new Date().toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit'})}`;
   
+  // Reset countdown
+  autoRefreshSeconds = 180;
+  
+  // Detect breaking news (only after first load)
+  if(knownItemKeys.size > 0){
+    detectBreakingNews(allNewsItems);
+  } else {
+    // First load: mark all as known so we don't spam
+    allNewsItems.forEach(n => knownItemKeys.add(n.title.substring(0,80)));
+  }
+  
   renderNewsFeed();
   renderConflictTracker();
   if(globeMesh) updateGlobePoints();
@@ -2695,30 +2961,50 @@ function renderNewsFeed(){
     const term = newsSearchTerm.toLowerCase();
     filtered = filtered.filter(n => 
       n.title.toLowerCase().includes(term) || 
-      n.desc.toLowerCase().includes(term) || 
+      (n.desc||'').toLowerCase().includes(term) || 
       n.source.toLowerCase().includes(term)
     );
   }
   
+  // Update counts
+  const counts = {all: allNewsItems.length};
+  ['markets','crypto','geopolitics','wars','economics'].forEach(cat=>{
+    counts[cat] = allNewsItems.filter(n => n.cat === cat).length;
+  });
+  Object.entries(counts).forEach(([cat, n])=>{
+    const elc = document.getElementById('cnt-'+cat);
+    if(elc) elc.textContent = n;
+  });
+  
   if(!filtered.length){
-    el.innerHTML = `<div style="padding:30px;text-align:center;color:var(--text3);font-size:13px;">${allNewsItems.length===0?'Lade News...':'Keine News gefunden für diese Kategorie.'}</div>`;
+    el.innerHTML = `<div style="padding:40px;text-align:center;color:var(--text3);font-size:13px;">${allNewsItems.length===0?'📡 Lade News...':'🔍 Keine News in dieser Kategorie.'}</div>`;
     return;
   }
   
-  // Group consecutive items by category for visual flow
-  const catTags = {markets:{tag:'tag-mkt',label:'MARKETS'},crypto:{tag:'tag-cry',label:'CRYPTO'},geopolitics:{tag:'tag-geo',label:'GEO'},wars:{tag:'tag-war',label:'WAR'},economics:{tag:'tag-eco',label:'ECON'}};
+  const catBadge = {
+    markets:{bg:'rgba(59,130,246,.15)',color:'#3b82f6',label:'MARKETS'},
+    crypto:{bg:'rgba(245,158,11,.15)',color:'#f59e0b',label:'CRYPTO'},
+    geopolitics:{bg:'rgba(239,68,68,.15)',color:'#ef4444',label:'GEO'},
+    wars:{bg:'rgba(220,38,38,.15)',color:'#dc2626',label:'CONFLICT'},
+    economics:{bg:'rgba(34,197,94,.15)',color:'#22c55e',label:'ECON'},
+  };
   
   el.innerHTML = filtered.slice(0, 100).map(n => {
     const ago = timeAgo(n.date);
-    const ct = catTags[n.cat] || {tag:'',label:''};
-    return `<div class="news-item" onclick="window.open('${n.url}','_blank')">
-      <div style="display:flex;align-items:center;flex-wrap:wrap;">
-        <span class="news-source">${n.source}</span>
-        <span class="news-time">${ago}</span>
-        ${ct.label?`<span class="news-tag ${ct.tag}">${ct.label}</span>`:''}
+    const isFresh = (Date.now() - n.date.getTime()) < 10*60*1000; // 10 min
+    const ct = catBadge[n.cat] || {bg:'',color:'',label:''};
+    const isBreaking = BREAKING_KEYWORDS.some(k => n.title.toLowerCase().includes(k));
+    
+    return `<div class="news-item ${isBreaking?'breaking':''}" onclick="window.open('${n.url}','_blank')" style="padding:14px 18px;border-bottom:1px solid var(--border);cursor:pointer;transition:all .15s;" onmouseenter="this.style.background='var(--bg2)'" onmouseleave="this.style.background=''">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;flex-wrap:wrap;">
+        <span style="font-size:10px;font-weight:700;color:var(--accent);letter-spacing:.05em;">${n.source.toUpperCase()}</span>
+        <span style="font-size:10px;color:var(--text3);">${ago}</span>
+        ${isFresh?'<span style="font-size:9px;background:#22c55e;color:#fff;padding:1px 6px;border-radius:3px;font-weight:700;">NEW</span>':''}
+        ${ct.label?`<span style="font-size:9px;background:${ct.bg};color:${ct.color};padding:1px 7px;border-radius:3px;font-weight:700;">${ct.label}</span>`:''}
+        ${isBreaking?'<span style="font-size:9px;background:#dc2626;color:#fff;padding:1px 7px;border-radius:3px;font-weight:700;animation:pulse 1.5s infinite;">🚨 BREAKING</span>':''}
       </div>
-      <div class="news-title">${n.title}</div>
-      ${n.desc?`<div class="news-desc">${n.desc.substring(0, 180)}${n.desc.length>180?'...':''}</div>`:''}
+      <div style="font-size:13px;font-weight:600;color:var(--text);line-height:1.4;margin-bottom:${n.desc?'4px':'0'};">${n.title}</div>
+      ${n.desc?`<div style="font-size:11px;color:var(--text2);line-height:1.5;">${n.desc.substring(0,200)}${n.desc.length>200?'...':''}</div>`:''}
     </div>`;
   }).join('');
 }
@@ -2798,6 +3084,8 @@ function startNewsAutoRefresh(){
 
 // Load news when news page is visited
 function initNewsIfNeeded(){
+  updateNotifButton();
+  startCountdown();
   if(!allNewsItems.length){
     refreshAllNews().then(()=>initGlobeIfNeeded());
     startNewsAutoRefresh();
